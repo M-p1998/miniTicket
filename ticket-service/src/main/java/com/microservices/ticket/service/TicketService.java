@@ -1,7 +1,9 @@
 package com.microservices.ticket.service;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.microservices.ticket.dto.TicketRequest;
 import com.microservices.ticket.dto.TicketResponse;
@@ -41,12 +43,49 @@ public class TicketService {
 				.toList();
 	}
 	public TicketResponse getTicket(Long id) {
-        Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found: " + id));
-        return toResponse(ticket);
-    }
+	    Ticket ticket = ticketRepository.findById(id)
+	        .orElseThrow(() ->
+	            new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found: " + id)
+	        );
+	    return toResponse(ticket);
+	}
 	
 	private TicketResponse toResponse(Ticket t) {
         return new TicketResponse(t.getId(), t.getSubject(), t.getDescription(), t.getStatus(), t.getPriority());
     }
+	
+	public TicketResponse updateTicket(Long id, TicketRequest req) {
+	    Ticket ticket = ticketRepository.findById(id)
+	        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found: " + id));
+
+	    ticket.setSubject(req.subject());
+	    ticket.setDescription(req.description());
+	    ticket.setPriority(req.priority());
+
+	    Ticket saved = ticketRepository.save(ticket);
+	    return toResponse(saved);
+	}
+	
+	public TicketResponse updateStatus(Long id, TicketStatus status) {
+	    Ticket ticket = ticketRepository.findById(id)
+	        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found: " + id));
+
+	    ticket.setStatus(status);
+	    return toResponse(ticketRepository.save(ticket));
+	}
+	
+	public void deleteTicket(Long id) {
+	    if (!ticketRepository.existsById(id)) {
+	    	throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found: " + id);
+	    }
+	    ticketRepository.deleteById(id);
+	}
+
+
+	
+	
+
 }
+
+
+

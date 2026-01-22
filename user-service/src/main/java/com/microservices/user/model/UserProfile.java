@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 @Table(
     name = "user_profile",
     uniqueConstraints = {
-        @UniqueConstraint(name = "uk_user_username", columnNames = "username"),
-        @UniqueConstraint(name = "uk_user_email", columnNames = "email")
+        @UniqueConstraint(columnNames = "username"),
+        @UniqueConstraint(columnNames = "email")
     }
 )
 @Data
@@ -30,14 +30,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserProfile {
 
-	@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String username;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
 
     private String title;

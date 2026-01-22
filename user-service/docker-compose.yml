@@ -1,0 +1,13 @@
+version: '4.43.1'
+services:
+  postgresdb:
+    image: postgres:15
+    container_name: postgresUser
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: bondstone
+      POSTGRES_DB: user_service
+    volumes:
+      - ./data:/var/lib/postgresql/data

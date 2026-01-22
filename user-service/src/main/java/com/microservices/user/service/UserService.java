@@ -61,6 +61,16 @@ public class UserService {
 
         // username usually should not change (especially if tied to Keycloak)
         // We'll keep it immutable here. If you want it editable, tell me.
+        if (req.username() != null && !req.username().isBlank()
+                && !req.username().equals(user.getUsername())) {
+
+            if (repo.existsByUsername(req.username().trim())) {
+                throw new ResponseStatusException(
+                        HttpStatus.CONFLICT, "username already exists");
+            }
+
+            user.setUsername(req.username().trim());
+        }
 
         if (req.email() != null && !req.email().isBlank() && !req.email().equals(user.getEmail())) {
             if (repo.existsByEmail(req.email().trim())) {

@@ -27,13 +27,14 @@ public class UserService {
         if (repo.existsByEmail(req.email().trim())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "email already exists");
         }
+        if (req.title() == null || req.title().isBlank())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "title is required");
 
         UserProfile user = UserProfile.builder()
                 .username(req.username().trim())
                 .email(req.email().trim())
                 .title(req.title().trim())
-                .funFacts(req.funFacts())
-                .createdAt(Instant.now())
+                .funFacts(req.funFacts() == null ? null : req.funFacts().trim())
                 .build();
 
         return toResponse(repo.save(user));

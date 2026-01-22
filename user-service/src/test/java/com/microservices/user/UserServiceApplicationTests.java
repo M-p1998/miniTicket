@@ -4,12 +4,15 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import com.microservices.user.repository.UserRepository;
 
 import io.restassured.RestAssured;
 
@@ -281,6 +284,9 @@ class UserServiceApplicationTests {
 
     @LocalServerPort
     int port;
+    
+    @Autowired
+    UserRepository userRepository;
 
     @BeforeAll
     static void init() {
@@ -290,6 +296,7 @@ class UserServiceApplicationTests {
     @BeforeEach
     void setup() {
         RestAssured.port = port;
+        userRepository.deleteAll(); 
     }
 
     // ---------- CREATE + GET ----------
@@ -305,7 +312,7 @@ class UserServiceApplicationTests {
                   "title": "Manager",
                   "funFacts": "building things"
                 }
-                """)
+                """.trim())
                 .post("/api/users")
                 .then()
                 .statusCode(201)
@@ -334,7 +341,7 @@ class UserServiceApplicationTests {
                   "title": "Analyst",
                   "funFacts": "debugging"
                 }
-                """)
+                """.trim())
                 .post("/api/users")
                 .then()
                 .statusCode(201)
@@ -351,7 +358,7 @@ class UserServiceApplicationTests {
               "title": "Senior Analyst",
               "funFacts": "fixing bugs"
             }
-            """)
+            """.trim())
             .put("/api/users/" + id)
             .then()
             .statusCode(200)
@@ -373,7 +380,7 @@ class UserServiceApplicationTests {
                   "title": "Temp",
                   "funFacts": "temporary"
                 }
-                """)
+                """.trim())
                 .post("/api/users")
                 .then()
                 .statusCode(201)

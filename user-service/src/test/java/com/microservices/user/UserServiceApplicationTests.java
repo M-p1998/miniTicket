@@ -142,6 +142,131 @@ import io.restassured.RestAssured;
 
 
 
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+//@Testcontainers
+//class UserServiceApplicationTests {
+//
+//    @Container
+//    @ServiceConnection
+//    static PostgreSQLContainer<?> postgres =
+//            new PostgreSQLContainer<>("postgres:15")
+//                    .withDatabaseName("user_service")
+//                    .withUsername("root")
+//                    .withPassword("bondstone");
+//
+//    @LocalServerPort
+//    int port;
+//
+//    @BeforeAll
+//    static void init() {
+//        RestAssured.baseURI = "http://localhost";
+//    }
+//
+//    @BeforeEach
+//    void setupPort() {
+//        RestAssured.port = port;
+//    }
+//
+//    @Test
+//    void shouldCreateAndGetUser() {
+//        String body = """
+//        {
+//          "username": "bobby",
+//          "email": "bobby@test.com",
+//          "title": "Manager",
+//          "funFacts": "building things"
+//        }
+//        """;
+//
+//        Long id = ((Number)
+//            RestAssured.given()
+//                .contentType("application/json")
+//                .body(body)
+//                .post("/api/users")
+//                .then()
+//                .statusCode(201)
+//                .extract()
+//                .path("id")
+//        ).longValue();
+//
+//        RestAssured.get("/api/users/" + id)
+//                .then()
+//                .statusCode(200)
+//                .body("username", Matchers.equalTo("bobby"))
+//                .body("email", Matchers.equalTo("bobby@test.com"))
+//                .body("title", Matchers.equalTo("Manager"));
+//    }
+//
+//    // ---------------- UPDATE ----------------
+//    @Test
+//    void shouldUpdateUser() {
+//        Long id = ((Number)
+//            RestAssured.given()
+//                .contentType("application/json")
+//                .body("""
+//                {
+//                  "username": "sam",
+//                  "email": "sam@test.com",
+//                  "title": "Analyst",
+//                  "funFacts": "debugging"
+//                }
+//                """)
+//                .post("/api/users")
+//                .then()
+//                .statusCode(201)
+//                .extract()
+//                .path("id")
+//        ).longValue();
+//
+//        RestAssured.given()
+//            .contentType("application/json")
+//            .body("""
+//            {
+//              "username": "sam",
+//              "email": "sam.updated@test.com",
+//              "title": "Senior Analyst",
+//              "funFacts": "fixing bugs"
+//            }
+//            """)
+//            .put("/api/users/" + id)
+//            .then()
+//            .statusCode(200)
+//            .body("title", Matchers.equalTo("Senior Analyst"))
+//            .body("email", Matchers.equalTo("sam.updated@test.com"));
+//    }
+//
+//    // ---------------- DELETE ----------------
+//    @Test
+//    void shouldDeleteUser() {
+//        Long id = ((Number)
+//            RestAssured.given()
+//                .contentType("application/json")
+//                .body("""
+//                {
+//                  "username": "deleteMe",
+//                  "email": "delete@test.com",
+//                  "title": "Temp",
+//                  "funFacts": "temporary"
+//                }
+//                """)
+//                .post("/api/users")
+//                .then()
+//                .statusCode(201)
+//                .extract()
+//                .path("id")
+//        ).longValue();
+//
+//        RestAssured.delete("/api/users/" + id)
+//                .then()
+//                .statusCode(204);
+//
+//        RestAssured.get("/api/users/" + id)
+//                .then()
+//                .statusCode(404);
+//    }
+//}
+
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
 class UserServiceApplicationTests {
@@ -163,25 +288,24 @@ class UserServiceApplicationTests {
     }
 
     @BeforeEach
-    void setupPort() {
+    void setup() {
         RestAssured.port = port;
     }
 
+    // ---------- CREATE + GET ----------
     @Test
     void shouldCreateAndGetUser() {
-        String body = """
-        {
-          "username": "bobby",
-          "email": "bobby@test.com",
-          "title": "Manager",
-          "funFacts": "building things"
-        }
-        """;
-
         Long id = ((Number)
             RestAssured.given()
                 .contentType("application/json")
-                .body(body)
+                .body("""
+                {
+                  "username": "bobby",
+                  "email": "bobby@test.com",
+                  "title": "Manager",
+                  "funFacts": "building things"
+                }
+                """)
                 .post("/api/users")
                 .then()
                 .statusCode(201)
@@ -197,7 +321,7 @@ class UserServiceApplicationTests {
                 .body("title", Matchers.equalTo("Manager"));
     }
 
-    // ---------------- UPDATE ----------------
+    // ---------- UPDATE ----------
     @Test
     void shouldUpdateUser() {
         Long id = ((Number)
@@ -222,7 +346,7 @@ class UserServiceApplicationTests {
             .contentType("application/json")
             .body("""
             {
-              "username": "sam",
+              "username": "samuel",
               "email": "sam.updated@test.com",
               "title": "Senior Analyst",
               "funFacts": "fixing bugs"
@@ -231,11 +355,12 @@ class UserServiceApplicationTests {
             .put("/api/users/" + id)
             .then()
             .statusCode(200)
-            .body("title", Matchers.equalTo("Senior Analyst"))
-            .body("email", Matchers.equalTo("sam.updated@test.com"));
+            .body("username", Matchers.equalTo("samuel"))
+            .body("email", Matchers.equalTo("sam.updated@test.com"))
+            .body("title", Matchers.equalTo("Senior Analyst"));
     }
 
-    // ---------------- DELETE ----------------
+    // ---------- DELETE ----------
     @Test
     void shouldDeleteUser() {
         Long id = ((Number)
@@ -265,4 +390,5 @@ class UserServiceApplicationTests {
                 .statusCode(404);
     }
 }
+
 

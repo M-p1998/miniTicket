@@ -22,7 +22,7 @@ public class CommentController {
     }
 
     @GetMapping
-    public List<CommentResponse> getByTicket(@RequestParam Long ticketId) {
+    public List<CommentResponse> getByTicket(@RequestParam("ticketId") Long ticketId) {
         return service.getByTicket(ticketId);
     }
 

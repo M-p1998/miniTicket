@@ -18,7 +18,7 @@ class TicketServiceApplicationTests {
 	static PostgreSQLContainer postgresContiner = new PostgreSQLContainer("postgres:15")
 			.withDatabaseName("ticket_service")
             .withUsername("root")
-            .withPassword("bondstone");;
+            .withPassword("bondstone");
 	@LocalServerPort
 	private Integer port;
 	

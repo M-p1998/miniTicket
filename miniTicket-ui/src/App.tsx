@@ -1,3 +1,4 @@
+import React from "react"; // ✅ REQUIRED
 import { Routes, Route, Link, Navigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
 import ProfilePage from "./pages/ProfilePage";
@@ -5,10 +6,12 @@ import TicketsDemoPage from "./pages/TicketsDemoPage";
 
 function Protected({ children }: { children: JSX.Element }) {
   const { isAuthenticated, login } = useAuth();
+
   if (!isAuthenticated) {
-    login(); // redirect to keycloak login page
+    login();
     return <div style={{ padding: 24 }}>Redirecting to login…</div>;
   }
+
   return children;
 }
 
@@ -19,7 +22,7 @@ export default function App() {
     <div style={{ padding: 24, fontFamily: "system-ui" }}>
       <h2>miniTicket UI</h2>
 
-      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+      <div style={{ display: "flex", gap: 12 }}>
         {!isAuthenticated ? (
           <>
             <button onClick={login}>Login</button>
@@ -27,13 +30,12 @@ export default function App() {
           </>
         ) : (
           <>
-            <span>Logged in as: <b>{username}</b></span>
+            <span>
+              Logged in as <b>{username}</b>
+            </span>
             <button onClick={logout}>Logout</button>
           </>
         )}
-
-        <Link to="/profile">Profile</Link>
-        <Link to="/tickets">Tickets</Link>
       </div>
 
       <hr />

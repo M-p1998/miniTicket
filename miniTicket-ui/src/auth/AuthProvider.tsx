@@ -1,45 +1,70 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import keycloak from "./keycloak";
 
-type AuthContextType = {
+/* ================= TYPES ================= */
+
+export type AuthContextType = {
   isAuthenticated: boolean;
   token: string | null;
   username: string | null;
+  email: string | null;
   login: () => void;
   register: () => void;
   logout: () => void;
 };
 
+/* ================= CONTEXT ================= */
+
 const AuthContext = createContext<AuthContextType | null>(null);
 
+/* ================= PROVIDER ================= */
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const initialized = useRef(false); // ✅ prevents double init
+
   const [ready, setReady] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+
     keycloak
       .init({
-        onLoad: "check-sso",          // don’t force login on first load
+        onLoad: "check-sso",
         pkceMethod: "S256",
-        checkLoginIframe: false,      // simpler for local dev
+        checkLoginIframe: false,
       })
       .then((auth) => {
         setIsAuthenticated(auth);
         setToken(keycloak.token ?? null);
 
-        // preferred_username is usually what you want
-        const u = (keycloak.tokenParsed as any)?.preferred_username ?? null;
-        setUsername(u);
+        const parsed: any = keycloak.tokenParsed ?? {};
+        setUsername(parsed.preferred_username ?? null);
+        setEmail(parsed.email ?? null);
 
         setReady(true);
 
-        // refresh token periodically
-        window.setInterval(async () => {
+        // refresh token
+        setInterval(async () => {
           try {
-            const refreshed = await keycloak.updateToken(60); // refresh if <60s left
-            if (refreshed) setToken(keycloak.token ?? null);
+            const refreshed = await keycloak.updateToken(60);
+            if (refreshed) {
+              setToken(keycloak.token ?? null);
+              const p: any = keycloak.tokenParsed ?? {};
+              setUsername(p.preferred_username ?? null);
+              setEmail(p.email ?? null);
+            }
           } catch (e) {
             console.error("Token refresh failed", e);
           }
@@ -56,17 +81,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAuthenticated,
       token,
       username,
+      email,
       login: () => keycloak.login(),
       register: () => keycloak.register(),
-      logout: () => keycloak.logout({ redirectUri: "http://localhost:5173/" }),
+      logout: () =>
+        keycloak.logout({ redirectUri: "http://localhost:5173/" }),
     }),
-    [isAuthenticated, token, username]
+    [isAuthenticated, token, username, email]
   );
 
   if (!ready) return <div style={{ padding: 24 }}>Loading auth…</div>;
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
+/* ================= HOOK ================= */
 
 export function useAuth() {
   const ctx = useContext(AuthContext);

@@ -13,7 +13,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.microservices.comment</groupId>
-	<artifactId>ticket-service</artifactId>
+	<artifactId>comment-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>comment-service</name>
 	<description>miniTicket with Spring Boot </description>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React,{ useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { apiFetch, GATEWAY_BASE } from "../api/http";
 
@@ -13,70 +13,114 @@ type UserResponse = {
 
 export default function ProfilePage() {
   const { token, username } = useAuth();
+
   const [profile, setProfile] = useState<UserResponse | null>(null);
-  const [status, setStatus] = useState<string>("Loading…");
+  const [title, setTitle] = useState("");
+  const [funFacts, setFunFacts] = useState("");
+  const [status, setStatus] = useState("Loading profile...");
 
   useEffect(() => {
-    if (!token || !username) return;
+  if (!token) return;
 
-    const run = async () => {
-      try {
-        // 1) try fetch profile
-        const res = await fetch(`${GATEWAY_BASE}/api/users/by-username/${username}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+  const run = async () => {
+    try {
+      // 1️⃣ Try load profile
+      const res = await fetch(`${GATEWAY_BASE}/api/users/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        if (res.status === 404) {
-          // 2) create profile if missing
-          // NOTE: email is not guaranteed unless you configure it in Keycloak and the user has email
-          // We'll pull email from token if present; otherwise you can prompt UI.
-          const parsed = JSON.parse(atob(token.split(".")[1]));
-          const emailFromToken = parsed.email ?? `${username}@example.com`;
-
-          const created = await apiFetch<UserResponse>(
-            `${GATEWAY_BASE}/api/users`,
-            token,
-            {
-              method: "POST",
-              body: JSON.stringify({
-                username,
-                email: emailFromToken,
-                title: "Engineer",
-                funFacts: "Created from Keycloak login",
-              }),
-            }
-          );
-          setProfile(created);
-          setStatus("Profile created ✅");
-          return;
-        }
-
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(`GET profile failed: ${res.status} ${text}`);
-        }
-
-        const data = (await res.json()) as UserResponse;
+      if (res.ok) {
+        const data = await res.json();
         setProfile(data);
-        setStatus("Profile loaded ✅");
-      } catch (e: any) {
-        console.error(e);
-        setStatus(e.message ?? "Error");
+        setTitle(data.title ?? "");
+        setFunFacts(data.funFacts ?? "");
+        setStatus("Profile loaded");
+        return;
       }
-    };
 
-    run();
-  }, [token, username]);
+      // 2️⃣ Only create on REAL 404
+      if (res.status === 404) {
+        const parsed = JSON.parse(atob(token.split(".")[1]));
+        const emailFromToken = parsed.email ?? "unknown@example.com";
+        const usernameFromToken =
+          parsed.preferred_username ?? parsed.sub;
+
+        const created = await apiFetch<UserResponse>(
+          `${GATEWAY_BASE}/api/users`,
+          token,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              username: usernameFromToken,
+              email: emailFromToken,
+              title: "",
+              funFacts: "",
+            }),
+          }
+        );
+
+        setProfile(created);
+        setTitle(created.title ?? "");
+        setFunFacts(created.funFacts ?? "");
+        setStatus("Profile created");
+        return;
+      }
+
+      throw new Error(`Unexpected status ${res.status}`);
+    } catch (e: any) {
+      console.error(e);
+      setStatus("Failed to load profile");
+    }
+  };
+
+  run();
+}, [token]);
+
+
+  const saveProfile = async () => {
+    if (!profile || !token) return;
+
+    try {
+      const updated = await apiFetch<UserResponse>(
+        `${GATEWAY_BASE}/api/users/${profile.id}`,
+        token,
+        {
+          method: "PUT",
+          body: JSON.stringify({
+            // username: profile.username,
+            // email: profile.email,
+            title,
+            funFacts,
+          }),
+        }
+      );
+
+      setProfile(updated);
+      setStatus("Profile saved");
+    } catch (e: any) {
+      console.error(e);
+      setStatus("Save failed");
+    }
+  };
 
   return (
-    <div>
-      <h3>Profile</h3>
-      <div>{status}</div>
+    <div style={{ maxWidth: 500 }}>
+      <h3>My Profile</h3>
+      <p>{status}</p>
 
       {profile && (
-        <pre style={{ background: "#f6f6f6", padding: 12 }}>
-          {JSON.stringify(profile, null, 2)}
-        </pre>
+        <>
+          <input value={profile.username} disabled />
+          <input value={profile.email} disabled />
+
+          <input value={title} onChange={(e) => setTitle(e.target.value)} />
+          <textarea
+            value={funFacts}
+            onChange={(e) => setFunFacts(e.target.value)}
+          />
+
+          <button onClick={saveProfile}>Save</button>
+        </>
       )}
     </div>
   );

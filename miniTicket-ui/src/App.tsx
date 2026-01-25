@@ -1,4 +1,4 @@
-import React from "react"; // ✅ REQUIRED
+import React from "react"; 
 import { Routes, Route, Link, Navigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
 import ProfilePage from "./pages/ProfilePage";
@@ -33,6 +33,8 @@ export default function App() {
             <span>
               Logged in as <b>{username}</b>
             </span>
+            <Link to="/profile">Profile</Link>
+            <Link to="/tickets">Tickets</Link>
             <button onClick={logout}>Logout</button>
           </>
         )}

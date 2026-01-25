@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { apiFetch, GATEWAY_BASE } from "../api/http";
 import { useAuth } from "../auth/AuthProvider";
-import { Link } from "react-router-dom";
-import "../styles/TicketsDashboardPage.css";
+import { Link,useNavigate } from "react-router-dom";
+import "../styles/TicketsDashboardPage.css"
 
 type TicketPriority = "LOW" | "MEDIUM" | "HIGH";
 type TicketStatus = "OPEN" | "CLOSED";
@@ -13,17 +13,35 @@ type TicketResponse = {
   description: string;
   status: TicketStatus;
   priority: TicketPriority;
+  createdBy: string;
+  createdAt: string;
 };
 
 type Tab = "ALL" | "OPEN" | "CLOSED";
 
+
+function timeAgo(iso: string) {
+  const then = new Date(iso).getTime();
+  const now = Date.now();
+  const diffSec = Math.max(0, Math.floor((now - then) / 1000));
+
+  if (diffSec < 60) return `${diffSec}s ago`;
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin} min ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr} hr ago`;
+  const diffDay = Math.floor(diffHr / 24);
+  return `${diffDay} day${diffDay === 1 ? "" : "s"} ago`;
+}
+
+
 export default function TicketsDashboardPage() {
   const { token } = useAuth();
-
   const [tickets, setTickets] = useState<TicketResponse[]>([]);
   const [tab, setTab] = useState<Tab>("ALL");
   const [q, setQ] = useState("");
   const [statusMsg, setStatusMsg] = useState("Loading tickets...");
+  const navigate = useNavigate();
 
   // 1) load tickets
   useEffect(() => {
@@ -116,12 +134,17 @@ export default function TicketsDashboardPage() {
               <th>Subject</th>
               <th>Status</th>
               <th>Priority</th>
+              <th>Created By</th>
+              <th>Created</th>
             </tr>
           </thead>
 
           <tbody>
             {filtered.map((t) => (
-              <tr key={t.id} className="row">
+              <tr key={t.id} 
+              onClick={() => navigate(`/tickets/${t.id}`)}
+              style={{ cursor: "pointer" }} 
+              className="row">
                 <td>#{t.id}</td>
                 <td className="subject">{t.subject}</td>
                 <td>
@@ -134,6 +157,8 @@ export default function TicketsDashboardPage() {
                     {t.priority}
                   </span>
                 </td>
+                <td>{t.createdBy }</td>
+                <td>{timeAgo(t.createdAt)}</td>
               </tr>
             ))}
 

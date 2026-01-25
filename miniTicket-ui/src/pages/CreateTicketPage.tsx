@@ -13,7 +13,7 @@ type TicketResponse = {
 };
 
 export default function CreateTicketPage() {
-  const { token } = useAuth();
+  const { token, username } = useAuth();
 
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
@@ -42,6 +42,7 @@ export default function CreateTicketPage() {
             subject,
             description,
             priority,
+            createdBy: username ?? "anon",
           }),
         }
       );
@@ -56,7 +57,7 @@ export default function CreateTicketPage() {
     }
   };
 
-  // ✅ ONE return only
+  
   return (
     <div style={{ maxWidth: 600, margin: "0 auto" }}>
       <h2>Create Ticket</h2>

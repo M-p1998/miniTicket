@@ -13,18 +13,23 @@ public class SecurityConfig {
 	  SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	    return http
 	      .csrf(ServerHttpSecurity.CsrfSpec::disable)
+	      .cors(cors -> {})
 	      .authorizeExchange(ex -> ex
 	        // allow health checks
 	        .pathMatchers("/actuator/**").permitAll()
+	        .pathMatchers("/api/**").authenticated()
 
 	        // allow GET (optional) - if you want browsing tickets without login, keep these
 	        // .pathMatchers(HttpMethod.GET, "/api/tickets/**", "/api/comments/**").permitAll()
 
 	        // REQUIRE LOGIN for write operations
-	        .pathMatchers(HttpMethod.POST, "/api/tickets/**", "/api/comments/**").authenticated()
+	        .pathMatchers(HttpMethod.POST, "/api/tickets/**", "/api/comments/**","/api/users/**").authenticated()
 	        .pathMatchers(HttpMethod.PUT, "/api/tickets/**", "/api/comments/**").authenticated()
 	        .pathMatchers(HttpMethod.PATCH, "/api/tickets/**", "/api/comments/**").authenticated()
 	        .pathMatchers(HttpMethod.DELETE, "/api/tickets/**", "/api/comments/**").authenticated()
+//	        .pathMatchers(HttpMethod.GET, "/api/users/me").authenticated()
+//            .pathMatchers(HttpMethod.POST, "/api/users").authenticated()
+//            .pathMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
 
 	        // everything else requires login (recommended)
 	        .anyExchange().authenticated()

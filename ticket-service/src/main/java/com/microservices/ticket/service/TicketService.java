@@ -21,12 +21,13 @@ public class TicketService {
 	
 	private final TicketRepository ticketRepository;
 	
-	public TicketResponse createTicket(TicketRequest ticketRequest) {
+	public TicketResponse createTicket(TicketRequest ticketRequest, String createdBy) {
 		Ticket ticket = Ticket.builder()
 				.subject(ticketRequest.subject())
 				.description(ticketRequest.description())
 				.status(TicketStatus.OPEN) //default
 				.priority(ticketRequest.priority())
+				.createdBy(createdBy)
 				.build();
 		 	Ticket saved = ticketRepository.save(ticket);
 
@@ -39,7 +40,8 @@ public class TicketService {
 		
 		return ticketRepository.findAll()
 				.stream()
-				.map(ticket -> new TicketResponse(ticket.getId(), ticket.getSubject(), ticket.getDescription(), ticket.getStatus(), ticket.getPriority()))
+				.map(ticket -> new TicketResponse(ticket.getId(), ticket.getSubject(), ticket.getDescription(), ticket.getStatus(), ticket.getPriority(), ticket.getCreatedBy(),
+					ticket.getCreatedAt()))
 				.toList();
 	}
 	public TicketResponse getTicket(Long id) {
@@ -51,8 +53,16 @@ public class TicketService {
 	}
 	
 	private TicketResponse toResponse(Ticket t) {
-        return new TicketResponse(t.getId(), t.getSubject(), t.getDescription(), t.getStatus(), t.getPriority());
-    }
+	    return new TicketResponse(
+	        t.getId(),
+	        t.getSubject(),
+	        t.getDescription(),
+	        t.getStatus(),
+	        t.getPriority(),
+	        t.getCreatedBy(),
+	        t.getCreatedAt()
+	    );
+	}
 	
 	public TicketResponse updateTicket(Long id, TicketRequest req) {
 	    Ticket ticket = ticketRepository.findById(id)

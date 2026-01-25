@@ -4,6 +4,7 @@ import { useAuth } from "./auth/AuthProvider";
 import ProfilePage from "./pages/ProfilePage";
 import CreateTicketPage from "./pages/CreateTicketPage";
 import TicketsDashboardPage from "./pages/TicketsDashboardPage";
+import TicketDetailPage from "./pages/TicketDetailPage";
 
 
 function Protected({ children }: { children: JSX.Element }) {
@@ -71,6 +72,13 @@ export default function App() {
             </Protected>
           }
         />
+        <Route 
+          path="/tickets/:id" 
+          element={
+            <Protected>
+              <TicketDetailPage />
+            </Protected>
+          } /> 
         
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

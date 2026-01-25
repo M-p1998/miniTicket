@@ -21,7 +21,8 @@ import lombok.NoArgsConstructor;
     name = "user_profile",
     uniqueConstraints = {
         @UniqueConstraint(columnNames = "username"),
-        @UniqueConstraint(columnNames = "email")
+        @UniqueConstraint(columnNames = "email"),
+        @UniqueConstraint(columnNames = "keycloak_user_id")
     }
 )
 @Data
@@ -39,7 +40,11 @@ public class UserProfile {
 
     @Column(nullable = false)
     private String email;
-
+    
+    @Column(name="keycloak_user_id", unique = true, updatable = false)
+    private String keycloakUserId;
+    
+    @Column(nullable = true)
     private String title;
 
     @Column(name = "fun_facts")

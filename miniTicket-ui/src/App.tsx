@@ -2,7 +2,9 @@ import React from "react";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
 import ProfilePage from "./pages/ProfilePage";
-import TicketsDemoPage from "./pages/TicketsDemoPage";
+import CreateTicketPage from "./pages/CreateTicketPage";
+import TicketsDashboardPage from "./pages/TicketsDashboardPage";
+
 
 function Protected({ children }: { children: JSX.Element }) {
   const { isAuthenticated, login } = useAuth();
@@ -34,6 +36,7 @@ export default function App() {
               Logged in as <b>{username}</b>
             </span>
             <Link to="/profile">Profile</Link>
+            <Link to="/tickets/create">Create Ticket</Link>
             <Link to="/tickets">Tickets</Link>
             <button onClick={logout}>Logout</button>
           </>
@@ -53,13 +56,22 @@ export default function App() {
           }
         />
         <Route
-          path="/tickets"
+          path="/tickets/create"
           element={
             <Protected>
-              <TicketsDemoPage />
+              <CreateTicketPage  />
             </Protected>
           }
         />
+        <Route
+          path="/tickets"
+          element={
+            <Protected>
+              <TicketsDashboardPage  />
+            </Protected>
+          }
+        />
+        
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </div>

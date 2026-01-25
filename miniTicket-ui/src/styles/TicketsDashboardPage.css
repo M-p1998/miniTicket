@@ -1,0 +1,112 @@
+.dashPage {
+  padding: 24px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.dashHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.primaryBtn {
+  border: 1px solid #444;
+  border-radius: 10px;
+  padding: 10px 14px;
+  text-decoration: none;
+  background: #f6f6f6;
+  color: #111;
+}
+
+.searchRow {
+  margin-top: 14px;
+}
+
+.searchRow input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #bbb;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  border: 1px solid #bbb;
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: #f0f0f0;
+  border-color: #777;
+}
+
+.msg {
+  margin-top: 12px;
+  background: #f4f4f4;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.tableWrap {
+  margin-top: 14px;
+  overflow-x: auto;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+}
+
+.table th, .table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.row:hover {
+  background: #fafafa;
+}
+
+.subject {
+  max-width: 520px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #bbb;
+  font-size: 12px;
+}
+
+.pill.open { background: #f2fff2; }
+.pill.closed { background: #fff2f2; }
+
+.pill.low { background: #f7f7f7; }
+.pill.medium { background: #fffbe6; }
+.pill.high { background: #ffecec; }
+
+.empty {
+  padding: 18px;
+  text-align: center;
+  color: #555;
+}

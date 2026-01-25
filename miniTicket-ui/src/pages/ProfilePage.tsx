@@ -1,6 +1,8 @@
 import React,{ useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { apiFetch, GATEWAY_BASE } from "../api/http";
+import "../styles/ProfilePage.css"
+
 
 type UserResponse = {
   id: number;
@@ -104,24 +106,46 @@ export default function ProfilePage() {
   };
 
   return (
-    <div style={{ maxWidth: 500 }}>
-      <h3>My Profile</h3>
-      <p>{status}</p>
+    <div className="profile-container">
+    <h2 className="profile-title">My Profile</h2>
+    <p className="profile-status">{status}</p>
 
-      {profile && (
-        <>
+    {profile && (
+      <div className="profile-card">
+        <div className="profile-row">
+          <label>Username</label>
           <input value={profile.username} disabled />
-          <input value={profile.email} disabled />
+        </div>
 
-          <input value={title} onChange={(e) => setTitle(e.target.value)} />
+        <div className="profile-row">
+          <label>Email</label>
+          <input value={profile.email} disabled />
+        </div>
+
+        <div className="profile-row">
+          <label>Title</label>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Your role or title"
+          />
+        </div>
+
+        <div className="profile-row">
+          <label>Fun Facts</label>
           <textarea
             value={funFacts}
             onChange={(e) => setFunFacts(e.target.value)}
+            placeholder="Tell us something interesting about you…"
+            rows={4}
           />
+        </div>
 
-          <button onClick={saveProfile}>Save</button>
-        </>
-      )}
-    </div>
+        <div className="profile-actions">
+          <button onClick={saveProfile}>Save Changes</button>
+        </div>
+      </div>
+    )}
+  </div>
   );
 }

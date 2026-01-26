@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { apiFetch, GATEWAY_BASE } from "../api/http";
 import { useAuth } from "../auth/AuthProvider";
+import "../styles/CreateTicketPage.css";
 
 type TicketPriority = "LOW" | "MEDIUM" | "HIGH";
 
@@ -57,38 +58,36 @@ export default function CreateTicketPage() {
     }
   };
 
-  
   return (
-    <div style={{ maxWidth: 600, margin: "0 auto" }}>
+  <div className="page">
+    <div className="card create-ticket-card">
       <h2>Create Ticket</h2>
 
-      {status && <p>{status}</p>}
+      {status && <div className="status">{status}</div>}
 
-      {/* Subject */}
-      <div style={{ marginBottom: 12 }}>
+      <div className="field">
         <label>Subject</label>
         <input
           type="text"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          style={{ width: "100%" }}
+          placeholder="Enter ticket subject"
         />
       </div>
 
-      {/* Description */}
-      <div style={{ marginBottom: 12 }}>
+      <div className="field">
         <label>Description</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          style={{ width: "100%", height: 120 }}
+          placeholder="Describe the issue..."
+          rows={6}
         />
       </div>
 
-      {/* Priority */}
-      <div style={{ marginBottom: 12 }}>
+      <div className="field">
         <label>Priority</label>
-        <div>
+        <div className="radioRow">
           <label>
             <input
               type="radio"
@@ -98,7 +97,7 @@ export default function CreateTicketPage() {
             Low
           </label>
 
-          <label style={{ marginLeft: 10 }}>
+          <label>
             <input
               type="radio"
               checked={priority === "MEDIUM"}
@@ -107,7 +106,7 @@ export default function CreateTicketPage() {
             Medium
           </label>
 
-          <label style={{ marginLeft: 10 }}>
+          <label>
             <input
               type="radio"
               checked={priority === "HIGH"}
@@ -118,7 +117,10 @@ export default function CreateTicketPage() {
         </div>
       </div>
 
-      <button onClick={createTicket}>Create Ticket</button>
+      <button className="btn primary" onClick={createTicket}>
+        Create Ticket
+      </button>
     </div>
-  );
+  </div>
+);
 }

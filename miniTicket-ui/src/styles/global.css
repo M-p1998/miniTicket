@@ -1,0 +1,55 @@
+/* ===== Global Dark Theme ===== */
+:root {
+  --bg: #0b0b0b;
+  --surface: #141414;
+  --border: #2a2a2a;
+  --text: #f2f2f2;
+  --muted: #bdbdbd;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Links */
+a {
+  color: #8ab4ff;
+}
+a:hover {
+  color: #b7d1ff;
+}
+
+/* Inputs */
+input, textarea, select {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--muted);
+}
+
+/* Cards / tables default */
+.card, .tableWrap, .profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+/* Table text */
+.table th, .table td {
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+
+.pageContainer {
+  padding-top: 32px;
+}
+

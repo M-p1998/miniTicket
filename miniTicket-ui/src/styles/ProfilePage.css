@@ -5,18 +5,21 @@
 }
 
 .profile-title {
-  margin-bottom: 8px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #f8fafc;
 }
 
 .profile-status {
-  color: #555;
+  color: #94a3b8;
   margin-bottom: 20px;
 }
 
+
 .profile-card {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
   padding: 20px;
 }
 
@@ -27,22 +30,36 @@
 }
 
 .profile-row label {
-  font-size: 0.85rem;
-  color: #666;
-  margin-bottom: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #e5e7eb;          
+  margin-bottom: 6px;
+  letter-spacing: 0.03em;
 }
 
 .profile-row input,
 .profile-row textarea {
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 10px 12px;
+  border-radius: 8px;
+
+  background: #0f172a;     
+  border: 1px solid #334155;
+  color: #f8fafc;
+
   font-size: 0.95rem;
 }
 
+.profile-row input::placeholder,
+.profile-row textarea::placeholder {
+  color: #94a3b8;
+}
+
+
 .profile-row input:disabled {
-  background: #f5f5f5;
-  color: #555;
+  background: #020617;
+  color: #cbd5f5;
+  border: 1px solid #1e293b;
+  cursor: not-allowed;
 }
 
 .profile-actions {
@@ -51,14 +68,19 @@
 }
 
 .profile-actions button {
-  padding: 8px 16px;
-  background: #6b5cff;
+  padding: 10px 18px;
+  background: #0b0c0e;
   color: white;
+  font-weight: 600;
+  border-radius: 8px;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
 }
 
 .profile-actions button:hover {
-  background: #5849e6;
+  background: #1d4ed8;
+}
+
+.profile-status {
+  display: none;
 }

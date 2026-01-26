@@ -154,13 +154,13 @@ export default function TicketsDashboardPage() {
 
   return (
     <div className="dashPage">
-      <div className="dashHeader">
+      {/* <div className="dashHeader">
         <h2>My Tickets</h2>
 
         <Link className="primaryBtn" to="/tickets/create">
           Create Ticket
         </Link>
-      </div>
+      </div> */}
 
       <div className="searchRow">
         <input

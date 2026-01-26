@@ -76,3 +76,52 @@
   background: #ff4d4f;
   border: none;
 }
+
+
+.brand {
+  font-weight: 700;
+  font-size: 18px;
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Icon button (Create) */
+.icon-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.icon-btn:hover {
+  background: #222;
+}
+
+/* Profile link */
+.profile-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ccc;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.profile-link:hover {
+  color: #fff;
+}
+
+/* Active nav item */
+.nav-links a.active,
+.icon-btn.active,
+.profile-link.active {
+  background: #222;
+  color: #fff;
+  border-radius: 6px;
+}

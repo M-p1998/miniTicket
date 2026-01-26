@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { apiFetch, GATEWAY_BASE } from "../api/http";
 import { useAuth } from "../auth/AuthProvider";
 import "../styles/CreateTicketPage.css";
+import { useNavigate } from "react-router-dom";
 
 type TicketPriority = "LOW" | "MEDIUM" | "HIGH";
 
@@ -15,7 +16,7 @@ type TicketResponse = {
 
 export default function CreateTicketPage() {
   const { token, username } = useAuth();
-
+  const navigate = useNavigate();
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<TicketPriority>("LOW");
@@ -52,6 +53,7 @@ export default function CreateTicketPage() {
       setSubject("");
       setDescription("");
       setPriority("LOW");
+      navigate("/tickets");
     } catch (e) {
       console.error(e);
       setStatus("Failed to create ticket");

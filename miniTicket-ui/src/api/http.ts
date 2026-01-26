@@ -14,6 +14,9 @@ export async function apiFetch<T>(
     const text = await res.text();
     throw new Error(`HTTP ${res.status}: ${text}`);
   }
+  if (res.status === 204) {
+    return null as T;
+  }
 
   return (await res.json()) as T;
 }

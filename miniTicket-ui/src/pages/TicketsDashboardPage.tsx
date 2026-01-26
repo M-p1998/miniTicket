@@ -3,6 +3,11 @@ import { apiFetch, GATEWAY_BASE } from "../api/http";
 import { useAuth } from "../auth/AuthProvider";
 import { Link,useNavigate } from "react-router-dom";
 import "../styles/TicketsDashboardPage.css"
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "../store/store";
+import { setTickets, setLoading, setError, removeTicket } from "../store/ticketsSlice";
+import $ from "jquery";
+import "../styles/pills.css";
 
 type TicketPriority = "LOW" | "MEDIUM" | "HIGH";
 type TicketStatus = "OPEN" | "CLOSED";
@@ -36,33 +41,63 @@ function timeAgo(iso: string) {
 
 
 export default function TicketsDashboardPage() {
-  const { token } = useAuth();
-  const [tickets, setTickets] = useState<TicketResponse[]>([]);
+  const { token,username } = useAuth();
+  // const [tickets, setTickets] = useState<TicketResponse[]>([]);
   const [tab, setTab] = useState<Tab>("ALL");
   const [q, setQ] = useState("");
   const [statusMsg, setStatusMsg] = useState("Loading tickets...");
   const navigate = useNavigate();
 
+  const dispatch = useDispatch<AppDispatch>();
+  const tickets = useSelector((state: RootState) => state.tickets.items);
+  const loading = useSelector((state: RootState) => state.tickets.loading);
+  const error = useSelector((state: RootState) => state.tickets.error);
+
+
   // 1) load tickets
+  // useEffect(() => {
+  //   if (!token) return;
+
+  //   const load = async () => {
+  //     try {
+  //       const data = await apiFetch<TicketResponse[]>(
+  //         `${GATEWAY_BASE}/api/tickets`,
+  //         token
+  //       );
+  //       setTickets(data);
+  //       setStatusMsg(data.length ? "" : "No tickets yet.");
+  //     } catch (e: any) {
+  //       console.error(e);
+  //       setStatusMsg(e.message || "Failed to load tickets");
+  //     }
+  //   };
+
+  //   load();
+  // }, [token]);
+
   useEffect(() => {
-    if (!token) return;
+  if (!token) return;
 
-    const load = async () => {
-      try {
-        const data = await apiFetch<TicketResponse[]>(
-          `${GATEWAY_BASE}/api/tickets`,
-          token
-        );
-        setTickets(data);
-        setStatusMsg(data.length ? "" : "No tickets yet.");
-      } catch (e: any) {
-        console.error(e);
-        setStatusMsg(e.message || "Failed to load tickets");
-      }
-    };
+  const load = async () => {
+    dispatch(setLoading());
 
-    load();
-  }, [token]);
+    try {
+      const data = await apiFetch<TicketResponse[]>(
+        `${GATEWAY_BASE}/api/tickets`,
+        token
+      );
+      dispatch(setTickets(data));
+      setStatusMsg(data.length ? "" : "No tickets yet.");
+    } catch (e: any) {
+      console.error(e);
+      dispatch(setError(e.message || "Failed to load tickets"));
+      setStatusMsg(e.message || "Failed to load tickets");
+    }
+  };
+
+  load();
+}, [token, dispatch]);
+
 
   // 2) filter by tab + search
   const filtered = useMemo(() => {
@@ -79,11 +114,43 @@ export default function TicketsDashboardPage() {
       });
   }, [tickets, tab, q]);
 
+  const deleteTicket = async (id: number) => {
+    if (!token) return;
+
+    if (!confirm("Delete this ticket?")) return;
+
+    await apiFetch(`${GATEWAY_BASE}/api/tickets/${id}`, token, {
+      method: "DELETE",
+    });
+
+    // setTickets((prev) => prev.filter((t) => t.id !== id));
+    dispatch(removeTicket(id));
+
+  };
+
+
   const counts = useMemo(() => {
     const open = tickets.filter((t) => t.status === "OPEN").length;
     const closed = tickets.filter((t) => t.status === "CLOSED").length;
     return { open, closed, all: tickets.length };
   }, [tickets]);
+
+  useEffect(() => {
+    // highlight row on hover using jquery
+    $(".row").on("mouseenter", function () {
+      $(this).addClass("jq-hover");
+    });
+
+    $(".row").on("mouseleave", function () {
+      $(this).removeClass("jq-hover");
+    });
+
+    // cleanup to avoid duplicate bindings
+    return () => {
+      $(".row").off("mouseenter mouseleave");
+    };
+  }, [filtered.length]);
+
 
   return (
     <div className="dashPage">
@@ -136,6 +203,7 @@ export default function TicketsDashboardPage() {
               <th>Priority</th>
               <th>Created By</th>
               <th>Created</th>
+              <th>Actions</th>
             </tr>
           </thead>
 
@@ -159,6 +227,20 @@ export default function TicketsDashboardPage() {
                 </td>
                 <td>{t.createdBy }</td>
                 <td>{timeAgo(t.createdAt)}</td>
+
+                <td>
+                  {t.createdBy === username && (
+                    <button
+                      className="deleteBtn"
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevents row click navigation
+                        deleteTicket(t.id);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
 
@@ -169,6 +251,8 @@ export default function TicketsDashboardPage() {
                 </td>
               </tr>
             )}
+
+            
           </tbody>
         </table>
       </div>

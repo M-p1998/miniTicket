@@ -1,11 +1,12 @@
-import React from "react"; 
-import { Routes, Route, Link, Navigate } from "react-router-dom";
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
+
+import Navbar from "./components/Navbar";
 import ProfilePage from "./pages/ProfilePage";
 import CreateTicketPage from "./pages/CreateTicketPage";
 import TicketsDashboardPage from "./pages/TicketsDashboardPage";
 import TicketDetailPage from "./pages/TicketDetailPage";
-
 
 function Protected({ children }: { children: JSX.Element }) {
   const { isAuthenticated, login } = useAuth();
@@ -19,35 +20,42 @@ function Protected({ children }: { children: JSX.Element }) {
 }
 
 export default function App() {
-  const { isAuthenticated, username, login, register, logout } = useAuth();
-
   return (
-    <div style={{ padding: 24, fontFamily: "system-ui" }}>
-      <h2>miniTicket UI</h2>
-
-      <div style={{ display: "flex", gap: 12 }}>
-        {!isAuthenticated ? (
-          <>
-            <button onClick={login}>Login</button>
-            <button onClick={register}>Register</button>
-          </>
-        ) : (
-          <>
-            <span>
-              Logged in as <b>{username}</b>
-            </span>
-            <Link to="/profile">Profile</Link>
-            <Link to="/tickets/create">Create Ticket</Link>
-            <Link to="/tickets">Tickets</Link>
-            <button onClick={logout}>Logout</button>
-          </>
-        )}
-      </div>
-
-      <hr />
+    <>
+      {/* ✅ Always visible */}
+      <Navbar />
 
       <Routes>
-        <Route path="/" element={<div>Home</div>} />
+        {/* ✅ Redirect root to dashboard */}
+        <Route path="/" element={<Navigate to="/tickets" />} />
+
+        <Route
+          path="/tickets"
+          element={
+            <Protected>
+              <TicketsDashboardPage />
+            </Protected>
+          }
+        />
+
+        <Route
+          path="/tickets/create"
+          element={
+            <Protected>
+              <CreateTicketPage />
+            </Protected>
+          }
+        />
+
+        <Route
+          path="/tickets/:id"
+          element={
+            <Protected>
+              <TicketDetailPage />
+            </Protected>
+          }
+        />
+
         <Route
           path="/profile"
           element={
@@ -56,32 +64,9 @@ export default function App() {
             </Protected>
           }
         />
-        <Route
-          path="/tickets/create"
-          element={
-            <Protected>
-              <CreateTicketPage  />
-            </Protected>
-          }
-        />
-        <Route
-          path="/tickets"
-          element={
-            <Protected>
-              <TicketsDashboardPage  />
-            </Protected>
-          }
-        />
-        <Route 
-          path="/tickets/:id" 
-          element={
-            <Protected>
-              <TicketDetailPage />
-            </Protected>
-          } /> 
-        
-        <Route path="*" element={<Navigate to="/" />} />
+
+        <Route path="*" element={<Navigate to="/tickets" />} />
       </Routes>
-    </div>
+    </>
   );
 }

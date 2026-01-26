@@ -1,6 +1,6 @@
 .dashPage {
   padding: 24px;
-  max-width: 980px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 
@@ -39,24 +39,28 @@
   flex-wrap: wrap;
 }
 
-.tab {
+/* .tab {
   border: 1px solid #bbb;
   background: #fff;
   padding: 8px 12px;
   border-radius: 10px;
   cursor: pointer;
-}
+} */
+.tab {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+ }
 
 .tab.active {
-  background: #f0f0f0;
-  border-color: #777;
+  background: #1f1f1f;
+  border-color: #3a3a3a;
 }
 
 .msg {
-  margin-top: 12px;
-  background: #f4f4f4;
-  border-radius: 10px;
-  padding: 10px;
+  background: #1a1a1a;
+  border: 1px solid var(--border);
+  color: var(--muted);
 }
 
 .tableWrap {
@@ -69,7 +73,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  min-width: 1100px;
 }
 
 .table th, .table td {
@@ -80,33 +84,41 @@
 }
 
 .row:hover {
-  background: #fafafa;
+  background: #1a1a1a;
 }
 
 .subject {
-  max-width: 520px;
+  max-width: 680px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.pill {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: 1px solid #bbb;
-  font-size: 12px;
-}
-
-.pill.open { background: #f2fff2; }
-.pill.closed { background: #fff2f2; }
-
-.pill.low { background: #f7f7f7; }
-.pill.medium { background: #fffbe6; }
-.pill.high { background: #ffecec; }
 
 .empty {
   padding: 18px;
   text-align: center;
   color: #555;
+}
+
+
+.deleteBtn {
+  background: #ff4d4f;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.deleteBtn:hover {
+  background: #ff7875;
+}
+
+.jq-hover {
+  background: #1a1a1a !important;
+}
+.row:hover .pill {
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.08);
 }

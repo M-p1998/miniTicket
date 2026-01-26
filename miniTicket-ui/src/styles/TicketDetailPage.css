@@ -1,0 +1,75 @@
+.page {
+  padding: 40px 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.ticket-detail-card {
+  width: 100%;
+  max-width: 520px; /* 👈 same as Profile & Create */
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ticket-description {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  background: #0f172a;
+  color: var(--text);
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.detailRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.comments {
+  margin-top: 24px;
+}
+
+.comments textarea {
+  width: 100%;
+  height: 90px;
+  margin-top: 8px;
+}
+
+.postBtn {
+  margin-top: 10px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.postBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.actionBtn.danger {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}

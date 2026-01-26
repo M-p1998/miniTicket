@@ -5,6 +5,7 @@ import { apiFetch, GATEWAY_BASE } from "../api/http";
 import { useAuth } from "../auth/AuthProvider";
 import { timeAgo } from "../utils/timeAgo";
 import "../styles/pills.css";
+import "../styles/TicketDetailPage.css";
 
 
 type Ticket = {
@@ -106,41 +107,27 @@ export default function TicketDetailPage() {
   if (!ticket) return <p>Loading...</p>;
 
   return (
-    <div className="pageContainer">
-    <div style={{ maxWidth: 800, margin: "0 auto" }}>
-      {/* <h2>#{ticket.id}: {ticket.subject}</h2> */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2 style={{ margin: 0 }}>#{ticket.id}: {ticket.subject}</h2>
+  <div className="page">
+    <div className="ticket-detail-card">
+      
+      <div className="ticket-header">
+        <h2>#{ticket.id}: {ticket.subject}</h2>
 
         {ticket.status === "OPEN" ? (
-            <button
-              className="actionBtn danger"
-              onClick={closeTicket}
-            >
-              Close Ticket
-            </button>
-
+          <button className="actionBtn danger" onClick={closeTicket}>
+            Close Ticket
+          </button>
         ) : (
-            <span style={{ fontWeight: 700 }}>CLOSED</span>
+          <span className="pill closed">CLOSED</span>
         )}
       </div>
 
-      <div style={{ marginTop: 12, marginBottom: 12 }}>
-        <div style={{ fontWeight: 700, marginBottom: 6 }}>Description</div>
-        <div
-            style={{
-              border: "1px solid #333",
-              borderRadius: 8,
-              padding: 12,
-              background: "#111",
-              color: "#e5e5e5",
-              whiteSpace: "pre-wrap",
-              lineHeight: 1.5,
-            }}
-        >
-            {ticket.description?.trim() ? ticket.description : "—"}
+      <div>
+        <strong>Description</strong>
+        <div className="ticket-description">
+          {ticket.description?.trim() ? ticket.description : "—"}
         </div>
-        </div>
+      </div>
 
       <div className="detailRow">
         <span>Status:</span>
@@ -166,31 +153,22 @@ export default function TicketDetailPage() {
         <span>{timeAgo(ticket.createdAt)}</span>
       </div>
 
-      {ticket.status === "CLOSED" && (
-    <>
-        
-    </>
-    )}
-
-
       <hr />
 
-      <h3>Comments</h3>
+      <div className="comments">
+        <h3>Comments</h3>
 
-      {/* <textarea
-        placeholder="Post a comment..."
-        value={message}
-        onChange={e => setMessage(e.target.value)}
-        style={{ width: "100%", height: 80 }}
-      />
-      <button onClick={postComment}>Post</button> */}
-      <textarea
-        placeholder={ticket.status === "CLOSED" ? "Ticket is closed. Comments are disabled." : "Post a comment..."}
-        value={message}
-        onChange={e => setMessage(e.target.value)}
-        style={{ width: "100%", height: 80 }}
-        disabled={ticket.status === "CLOSED"}
-      />
+        <textarea
+          placeholder={
+            ticket.status === "CLOSED"
+              ? "Ticket is closed. Comments are disabled."
+              : "Post a comment..."
+          }
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          disabled={ticket.status === "CLOSED"}
+        />
+
         <button
           className="postBtn"
           onClick={postComment}
@@ -198,13 +176,17 @@ export default function TicketDetailPage() {
         >
           Post
         </button>
-      {comments.map(c => (
-        <div key={c.id} style={{ marginTop: 12 }}>
-          <b>{c.author}</b> · {timeAgo(c.createdAt)}
-          <p>{c.message}</p>
-        </div>
-      ))}
+
+        {comments.map((c) => (
+          <div key={c.id} style={{ marginTop: 12 }}>
+            <b>{c.author}</b> · {timeAgo(c.createdAt)}
+            <p>{c.message}</p>
+          </div>
+        ))}
+      </div>
+
     </div>
-    </div>
-  );
+  </div>
+);
+
 }

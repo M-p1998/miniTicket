@@ -122,3 +122,49 @@
 .row:hover .pill {
   box-shadow: 0 0 6px rgba(255, 255, 255, 0.08);
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding-bottom: 12px;
+}
+
+.pageBtn {
+  background: #1a1a1a;
+  color: #eee;
+  border: 1px solid #333;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pageBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pageNums {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pageNum {
+  min-width: 36px;
+  background: #121212;
+  color: #ddd;
+  border: 1px solid #333;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pageNum.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}

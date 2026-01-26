@@ -53,27 +53,8 @@ export default function TicketsDashboardPage() {
   const loading = useSelector((state: RootState) => state.tickets.loading);
   const error = useSelector((state: RootState) => state.tickets.error);
 
-
-  // 1) load tickets
-  // useEffect(() => {
-  //   if (!token) return;
-
-  //   const load = async () => {
-  //     try {
-  //       const data = await apiFetch<TicketResponse[]>(
-  //         `${GATEWAY_BASE}/api/tickets`,
-  //         token
-  //       );
-  //       setTickets(data);
-  //       setStatusMsg(data.length ? "" : "No tickets yet.");
-  //     } catch (e: any) {
-  //       console.error(e);
-  //       setStatusMsg(e.message || "Failed to load tickets");
-  //     }
-  //   };
-
-  //   load();
-  // }, [token]);
+  const PAGE_SIZE = 10;
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
   if (!token) return;
@@ -100,19 +81,19 @@ export default function TicketsDashboardPage() {
 
 
   // 2) filter by tab + search
-  const filtered = useMemo(() => {
-    const search = q.trim().toLowerCase();
+  // const filtered = useMemo(() => {
+  //   const search = q.trim().toLowerCase();
 
-    return tickets
-      .filter((t) => (tab === "ALL" ? true : t.status === tab))
-      .filter((t) => {
-        if (!search) return true;
-        return (
-          t.subject.toLowerCase().includes(search) ||
-          String(t.id).includes(search)
-        );
-      });
-  }, [tickets, tab, q]);
+  //   return tickets
+  //     .filter((t) => (tab === "ALL" ? true : t.status === tab))
+  //     .filter((t) => {
+  //       if (!search) return true;
+  //       return (
+  //         t.subject.toLowerCase().includes(search) ||
+  //         String(t.id).includes(search)
+  //       );
+  //     });
+  // }, [tickets, tab, q]);
 
   const deleteTicket = async (id: number) => {
     if (!token) return;
@@ -127,6 +108,42 @@ export default function TicketsDashboardPage() {
     dispatch(removeTicket(id));
 
   };
+
+  const filtered = useMemo(() => {
+    const search = q.trim().toLowerCase();
+
+    // 1) Sort newest first
+    const sorted = [...tickets].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    // 2) Filter by tab + search
+    return sorted
+      .filter((t) => (tab === "ALL" ? true : t.status === tab))
+      .filter((t) => {
+        if (!search) return true;
+        return (
+          t.subject.toLowerCase().includes(search) ||
+          String(t.id).includes(search)
+        );
+      });
+  }, [tickets, tab, q]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+
+  useEffect(() => {
+    // If filtering reduces results, keep page in range
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const pagedTickets = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filtered.slice(start, start + PAGE_SIZE);
+  }, [filtered, page]);
+
+  useEffect(() => {
+  setPage(1);
+}, [tab, q]);
 
 
   const counts = useMemo(() => {
@@ -208,7 +225,7 @@ export default function TicketsDashboardPage() {
           </thead>
 
           <tbody>
-            {filtered.map((t) => (
+            {pagedTickets.map((t) => (
               <tr key={t.id} 
               onClick={() => navigate(`/tickets/${t.id}`)}
               style={{ cursor: "pointer" }} 
@@ -233,7 +250,7 @@ export default function TicketsDashboardPage() {
                     <button
                       className="deleteBtn"
                       onClick={(e) => {
-                        e.stopPropagation(); // prevents row click navigation
+                        e.stopPropagation(); 
                         deleteTicket(t.id);
                       }}
                     >
@@ -256,6 +273,39 @@ export default function TicketsDashboardPage() {
           </tbody>
         </table>
       </div>
+
+
+      <div className="pagination">
+  <button
+    className="pageBtn"
+    disabled={page === 1}
+    onClick={() => setPage((p) => Math.max(1, p - 1))}
+  >
+    Prev
+  </button>
+
+  <div className="pageNums">
+    {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+      <button
+        key={n}
+        className={n === page ? "pageNum active" : "pageNum"}
+        onClick={() => setPage(n)}
+      >
+        {n}
+      </button>
+    ))}
+  </div>
+
+  <button
+    className="pageBtn"
+    disabled={page === totalPages}
+    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+  >
+    Next
+  </button>
+</div>
+
     </div>
+    
   );
 }

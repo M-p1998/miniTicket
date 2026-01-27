@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
-
+import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import ProfilePage from "./pages/ProfilePage";
 import CreateTicketPage from "./pages/CreateTicketPage";
@@ -22,9 +22,9 @@ function Protected({ children }: { children: JSX.Element }) {
 export default function App() {
   return (
     <>
-      {/* ✅ Always visible */}
+      <div className="app-layout">
       <Navbar />
-
+      <main className="app-content">
       <Routes>
         {/* ✅ Redirect root to dashboard */}
         <Route path="/" element={<Navigate to="/tickets" />} />
@@ -66,7 +66,19 @@ export default function App() {
         />
 
         <Route path="*" element={<Navigate to="/tickets" />} />
+        <Route
+          path="/footer"
+          element={
+            <Protected>
+              <Footer />
+            </Protected>
+          }
+        />
       </Routes>
+      </main>
+      <Footer />
+      </div>
     </>
+    
   );
 }

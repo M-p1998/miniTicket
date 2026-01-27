@@ -53,4 +53,10 @@ public class Ticket {
     public void onCreate() {
         if (createdAt == null) createdAt = Instant.now();
     }
+    
+    @Column(nullable = true)
+    private String closedBy;
+    @Column(nullable = true)
+    private Instant closedAt;
+
 }

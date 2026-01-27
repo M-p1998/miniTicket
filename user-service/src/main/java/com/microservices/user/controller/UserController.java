@@ -40,7 +40,7 @@ public class UserController {
             @AuthenticationPrincipal Jwt jwt
     ) {
         String keycloakUserId = jwt.getSubject(); 
-        String username = jwt.getClaimAsString("preferred_username");
+        String username = jwt.getClaimAsString("display_username");
         String email = jwt.getClaimAsString("email");
         
         

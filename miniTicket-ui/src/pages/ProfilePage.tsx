@@ -26,7 +26,7 @@ export default function ProfilePage() {
 
   const run = async () => {
     try {
-      // 1️⃣ Try load profile
+      
       const res = await fetch(`${GATEWAY_BASE}/api/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -40,7 +40,7 @@ export default function ProfilePage() {
         return;
       }
 
-      // 2️⃣ Only create on REAL 404
+      
       if (res.status === 404) {
         const parsed = JSON.parse(atob(token.split(".")[1]));
         const emailFromToken = parsed.email ?? "unknown@example.com";
@@ -112,10 +112,10 @@ export default function ProfilePage() {
 
     {profile && (
       <div className="profile-card">
-        <div className="profile-row">
+        {/* <div className="profile-row">
           <label>Username</label>
           <input value={profile.username} disabled />
-        </div>
+        </div> */}
 
         <div className="profile-row">
           <label>Email</label>

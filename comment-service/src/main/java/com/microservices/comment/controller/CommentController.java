@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.microservices.comment.dto.CommentRequest;
 import com.microservices.comment.dto.CommentResponse;
@@ -38,17 +39,24 @@ public class CommentController {
     @ResponseStatus(HttpStatus.CREATED)
     public CommentResponse create(@RequestBody CommentRequest req,
             @AuthenticationPrincipal Jwt jwt) {
+    		
+    	if (jwt == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Missing JWT"
+            );
+        }
 
-			String author = jwt.getClaimAsString("preferred_username");
-			
-			// create a new request that includes the author
-			CommentRequest withAuthor = new CommentRequest(
-			req.ticketId(),
-			author,
-			req.message()
-		);
+		String author = jwt.getClaimAsString("display_username");
 		
-		return service.create(withAuthor);
+		// create a new request that includes the author
+		CommentRequest withAuthor = new CommentRequest(
+		req.ticketId(),
+		author,
+		req.message()
+	);
+		
+	return service.create(withAuthor);
 	}
 
     @GetMapping

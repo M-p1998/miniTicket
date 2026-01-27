@@ -48,7 +48,7 @@ public class UserService {
                 .email(req.email().trim())
                 .title(
                         (req.title() == null || req.title().isBlank())
-                            ? "New User"
+                            ? ""
                             : req.title().trim()
                     )
                 .funFacts(req.funFacts())

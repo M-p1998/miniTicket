@@ -44,7 +44,7 @@ public class TicketController {
 	        @RequestBody TicketRequest ticketRequest,
 	        @AuthenticationPrincipal Jwt jwt
 	) {
-	    String createdBy = jwt.getClaimAsString("preferred_username");
+	    String createdBy = jwt.getClaimAsString("display_username");
 	    if (createdBy == null) {
 	        createdBy = jwt.getSubject(); // fallback
 	    }
@@ -71,8 +71,9 @@ public class TicketController {
 	
 	@PatchMapping("/{id}/status")
 	public TicketResponse updateStatus(@PathVariable("id") Long id,
-	                                   @RequestParam("status") TicketStatus status) {
-	    return ticketService.updateStatus(id, status);
+	                                   @RequestParam("status") TicketStatus status,@AuthenticationPrincipal Jwt jwt) {
+		String user = jwt.getClaimAsString("display_username");
+		return ticketService.updateStatus(id, status, user);
 	}
 	
 	@DeleteMapping("/{id}")

@@ -49,7 +49,81 @@ input::placeholder, textarea::placeholder {
   border-bottom: 1px solid var(--border);
 }
 
-.pageContainer {
-  padding-top: 32px;
+
+
+
+#root {
+  min-height: 100%;
 }
 
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1; 
+}
+
+.page-title {
+  text-align: left;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: var(--text);
+}
+
+
+
+/* .page-shell {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 16px;
+} */
+
+
+.page-shell {
+  padding-top: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.page-shell .page-title {
+  text-align: left;       
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 0 0 24px;
+  
+}
+
+.page-title{
+font-size: 1.6rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+
+.profile-title {
+  text-align: left;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: var(--text);
+}
+
+.page-inner {
+  width: 100%;
+  max-width: 720px;
+  padding: 0 16px;           /* optional, nice spacing on small screens */
+  display: flex;
+  flex-direction: column;
+}
+
+.pageContainer {
+  padding-top: 32px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}

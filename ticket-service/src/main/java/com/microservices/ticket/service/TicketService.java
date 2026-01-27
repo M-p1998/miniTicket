@@ -13,6 +13,7 @@ import com.microservices.ticket.repository.TicketRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +42,8 @@ public class TicketService {
 		return ticketRepository.findAll()
 				.stream()
 				.map(ticket -> new TicketResponse(ticket.getId(), ticket.getSubject(), ticket.getDescription(), ticket.getStatus(), ticket.getPriority(), ticket.getCreatedBy(),
-					ticket.getCreatedAt()))
+					ticket.getCreatedAt(),ticket.getClosedBy(),
+			        ticket.getClosedAt()))
 				.toList();
 	}
 	public TicketResponse getTicket(Long id) {
@@ -60,7 +62,9 @@ public class TicketService {
 	        t.getStatus(),
 	        t.getPriority(),
 	        t.getCreatedBy(),
-	        t.getCreatedAt()
+	        t.getCreatedAt(),
+	        t.getClosedBy(),
+	        t.getClosedAt()
 	    );
 	}
 	
@@ -76,12 +80,17 @@ public class TicketService {
 	    return toResponse(saved);
 	}
 	
-	public TicketResponse updateStatus(Long id, TicketStatus status) {
+	public TicketResponse updateStatus(Long id, TicketStatus status, String user) {
 	    Ticket ticket = ticketRepository.findById(id)
 	        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found: " + id));
 
 	    ticket.setStatus(status);
-	    return toResponse(ticketRepository.save(ticket));
+	    if (status == TicketStatus.CLOSED) {
+	        ticket.setClosedBy(user);
+	        ticket.setClosedAt(Instant.now());
+	      }
+	    Ticket saved = ticketRepository.save(ticket);
+	    return toResponse(saved);
 	}
 	
 	public void deleteTicket(Long id) {

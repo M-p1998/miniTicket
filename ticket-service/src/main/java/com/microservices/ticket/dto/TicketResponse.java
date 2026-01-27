@@ -12,6 +12,9 @@ public record TicketResponse(
         TicketStatus status,
         TicketPriority priority,
         String createdBy,
-        Instant createdAt
+        Instant createdAt,
+        
+        String closedBy,
+        Instant closedAt
         )
 {}

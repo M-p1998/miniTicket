@@ -3,6 +3,7 @@ import { apiFetch, GATEWAY_BASE } from "../api/http";
 import { useAuth } from "../auth/AuthProvider";
 import "../styles/CreateTicketPage.css";
 import { useNavigate } from "react-router-dom";
+import "../styles/global.css"
 
 type TicketPriority = "LOW" | "MEDIUM" | "HIGH";
 
@@ -61,9 +62,12 @@ export default function CreateTicketPage() {
   };
 
   return (
-  <div className="page">
+  <div className="pageContainer">
+    <div className="page-inner">
+      <div className="ticket-column">
+    <h2 className="profile-title">Create Ticket</h2>
     <div className="card create-ticket-card">
-      <h2>Create Ticket</h2>
+      {/* <h2>Create Ticket</h2> */}
 
       {status && <div className="status">{status}</div>}
 
@@ -122,6 +126,8 @@ export default function CreateTicketPage() {
       <button className="btn primary" onClick={createTicket}>
         Create Ticket
       </button>
+    </div>
+    </div>
     </div>
   </div>
 );

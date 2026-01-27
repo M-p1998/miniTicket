@@ -7,6 +7,8 @@ import ProfilePage from "./pages/ProfilePage";
 import CreateTicketPage from "./pages/CreateTicketPage";
 import TicketsDashboardPage from "./pages/TicketsDashboardPage";
 import TicketDetailPage from "./pages/TicketDetailPage";
+import IdleLogout from "./auth/IdleLogout";
+
 
 function Protected({ children }: { children: JSX.Element }) {
   const { isAuthenticated, login } = useAuth();
@@ -25,8 +27,9 @@ export default function App() {
       <div className="app-layout">
       <Navbar />
       <main className="app-content">
+      <IdleLogout />
       <Routes>
-        {/* ✅ Redirect root to dashboard */}
+        
         <Route path="/" element={<Navigate to="/tickets" />} />
 
         <Route
@@ -77,6 +80,7 @@ export default function App() {
       </Routes>
       </main>
       <Footer />
+      
       </div>
     </>
     

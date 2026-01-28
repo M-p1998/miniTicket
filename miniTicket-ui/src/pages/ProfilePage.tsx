@@ -112,10 +112,10 @@ export default function ProfilePage() {
 
     {profile && (
       <div className="profile-card">
-        {/* <div className="profile-row">
+        <div className="profile-row">
           <label>Username</label>
           <input value={profile.username} disabled />
-        </div> */}
+        </div>
 
         <div className="profile-row">
           <label>Email</label>

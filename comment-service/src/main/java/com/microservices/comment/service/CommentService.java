@@ -46,4 +46,14 @@ public class CommentService {
                 c.getId(), c.getTicketId(), c.getAuthor(), c.getMessage(), c.getCreatedAt()
         );
     }
+    
+    public CommentResponse createSystemComment(Long ticketId, String message) {
+    	  Comment c = new Comment();
+    	  c.setTicketId(ticketId);
+    	  c.setAuthor("system");
+    	  c.setMessage(message);
+    	  c.setCreatedAt(Instant.now());
+    	  return toResponse(repo.save(c));
+    	}
+
 }

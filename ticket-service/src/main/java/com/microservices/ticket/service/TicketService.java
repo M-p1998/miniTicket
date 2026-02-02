@@ -28,9 +28,9 @@ public class TicketService {
 	
 	private final KafkaTemplate<String, Object> kafkaTemplate;
 
-//	public TicketService(..., KafkaTemplate<String, Object> kafkaTemplate) {
-//	  ...
-//	  this.kafkaTemplate = kafkaTemplate;
+//	public TicketService(TicketRepository ticketRepository, KafkaTemplate<String, Object> kafkaTemplate) {
+//		this.ticketRepository = ticketRepository;
+//		this.kafkaTemplate = kafkaTemplate;
 //	}
 	
 	public TicketResponse createTicket(TicketRequest ticketRequest, String createdBy) {

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: miniticket
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: miniticketacr12345.azurecr.io/miniticket/api-gateway:latest
+          ports:
+            - containerPort: 9001
+          env:
+            - name: SERVER_PORT
+              value: "9001"
+            - name: KC_ISSUER
+              value: http://keycloak:8080/realms/miniTicket

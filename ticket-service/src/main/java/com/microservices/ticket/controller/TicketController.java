@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -69,12 +70,21 @@ public class TicketController {
 	    return ticketService.updateTicket(id, req);
 	}
 	
-	@PatchMapping("/{id}/status")
-	public TicketResponse updateStatus(@PathVariable("id") Long id,
-	                                   @RequestParam("status") TicketStatus status,@AuthenticationPrincipal Jwt jwt) {
-		String user = jwt.getClaimAsString("display_username");
-		return ticketService.updateStatus(id, status, user);
+//	@PatchMapping("/{id}/status")
+//	public TicketResponse updateStatus(@PathVariable("id") Long id,
+//	                                   @RequestParam("status") TicketStatus status,@AuthenticationPrincipal Jwt jwt) {
+//		String user = jwt.getClaimAsString("display_username");
+//		return ticketService.updateStatus(id, status, user);
+//	}
+	
+	@PatchMapping("/api/tickets/{id}/status")
+	public TicketResponse updateStatus(@PathVariable Long id, @RequestBody StatusRequest req, JwtAuthenticationToken auth) {
+	  String user = auth.getToken().getClaimAsString("display_username");
+	  return ticketService.updateStatus(id, TicketStatus.valueOf(req.status()), user);
 	}
+
+	public record StatusRequest(String status) {}
+
 	
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)

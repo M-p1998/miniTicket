@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-ticket
+  namespace: miniticket
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: postgres-ticket }
+  template:
+    metadata:
+      labels: { app: postgres-ticket }
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          ports: [{ containerPort: 5432 }]
+          env:
+            - name: POSTGRES_USER
+              valueFrom: { secretKeyRef: { name: miniticket-secrets, key: POSTGRES_USER } }
+            - name: POSTGRES_PASSWORD
+              valueFrom: { secretKeyRef: { name: miniticket-secrets, key: POSTGRES_PASSWORD } }
+            - name: POSTGRES_DB
+              value: ticket_service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-ticket
+  namespace: miniticket
+spec:
+  selector: { app: postgres-ticket }
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-comment
+  namespace: miniticket
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: postgres-comment }
+  template:
+    metadata:
+      labels: { app: postgres-comment }
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          ports: [{ containerPort: 5432 }]
+          env:
+            - name: POSTGRES_USER
+              valueFrom: { secretKeyRef: { name: miniticket-secrets, key: POSTGRES_USER } }
+            - name: POSTGRES_PASSWORD
+              valueFrom: { secretKeyRef: { name: miniticket-secrets, key: POSTGRES_PASSWORD } }
+            - name: POSTGRES_DB
+              value: comment_service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-comment
+  namespace: miniticket
+spec:
+  selector: { app: postgres-comment }
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-user
+  namespace: miniticket
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: postgres-user }
+  template:
+    metadata:
+      labels: { app: postgres-user }
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          ports: [{ containerPort: 5432 }]
+          env:
+            - name: POSTGRES_USER
+              valueFrom: { secretKeyRef: { name: miniticket-secrets, key: POSTGRES_USER } }
+            - name: POSTGRES_PASSWORD
+              valueFrom: { secretKeyRef: { name: miniticket-secrets, key: POSTGRES_PASSWORD } }
+            - name: POSTGRES_DB
+              value: user_service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-user
+  namespace: miniticket
+spec:
+  selector: { app: postgres-user }
+  ports:
+    - port: 5432
+      targetPort: 5432

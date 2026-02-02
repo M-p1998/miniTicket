@@ -69,39 +69,63 @@ export default function TicketDetailPage() {
     setMessage("");
   };
 
-  const closeTicket = async () => {
+//   const closeTicket = async () => {
+//   if (!token || !id) return;
+
+//   try {
+//     // 1) close ticket
+//     const updated = await apiFetch<Ticket>(
+//       `${GATEWAY_BASE}/api/tickets/${id}/status?status=CLOSED`,
+//       token,
+//       { method: "PATCH" }
+//     );
+
+//     setTicket(updated);
+
+//     // 2) add a "system comment"
+//     const created = await apiFetch<Comment>(
+//       `${GATEWAY_BASE}/api/comments`,
+//       token,
+//       {
+//         method: "POST",
+//         body: JSON.stringify({
+//           ticketId: Number(id),
+//           message: "closed the ticket"
+//         })
+//       }
+//     );
+
+//     setComments((prev) => [...prev, created]);
+
+//   } catch (e) {
+//     console.error(e);
+//     alert("Failed to close ticket");
+//   }
+// };
+
+const closeTicket = async () => {
   if (!token || !id) return;
 
-  try {
-    // 1) close ticket
-    const updated = await apiFetch<Ticket>(
-      `${GATEWAY_BASE}/api/tickets/${id}/status?status=CLOSED`,
-      token,
-      { method: "PATCH" }
-    );
+  // PATCH endpoint you’ll add in ticket-service
+  const updated = await apiFetch<Ticket>(
+    `${GATEWAY_BASE}/api/tickets/${id}/status`,
+    token,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ status: "CLOSED" }),
+    }
+  );
 
-    setTicket(updated);
+  setTicket(updated);
 
-    // 2) add a "system comment"
-    const created = await apiFetch<Comment>(
-      `${GATEWAY_BASE}/api/comments`,
-      token,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          ticketId: Number(id),
-          message: "closed the ticket"
-        })
-      }
-    );
-
-    setComments((prev) => [...prev, created]);
-
-  } catch (e) {
-    console.error(e);
-    alert("Failed to close ticket");
-  }
+  // refresh comments after Kafka consumer inserts system comment
+  const latestComments = await apiFetch<Comment[]>(
+    `${GATEWAY_BASE}/api/comments?ticketId=${id}`,
+    token
+  );
+  setComments(latestComments);
 };
+
 
 
   if (!ticket) return <p>Loading...</p>;
@@ -113,13 +137,23 @@ export default function TicketDetailPage() {
       <div className="ticket-header">
         <h2>#{ticket.id}: {ticket.subject}</h2>
 
-        {ticket.status === "OPEN" ? (
+        {/* {ticket.status === "OPEN" ? (
           <button className="actionBtn danger" onClick={closeTicket}>
             Close Ticket
           </button>
         ) : (
           <span className="pill closed">CLOSED</span>
+        )} */}
+
+        {ticket.status !== "CLOSED" && (
+          <button onClick={closeTicket} style={{ marginTop: 12 }}>
+            Close Ticket
+          </button>
         )}
+        {ticket.status === "CLOSED" && (
+          <p><b>Closed by:</b> {ticket.closedBy} · {timeAgo(ticket.closedAt || ticket.createdAt)}</p>
+        )}
+
       </div>
 
       <div>
@@ -158,7 +192,7 @@ export default function TicketDetailPage() {
       <div className="comments">
         <h3>Comments</h3>
 
-        <textarea
+        {/* <textarea
           placeholder={
             ticket.status === "CLOSED"
               ? "Ticket is closed. Comments are disabled."
@@ -175,7 +209,22 @@ export default function TicketDetailPage() {
           disabled={ticket.status === "CLOSED"}
         >
           Post
-        </button>
+        </button> */}
+
+        {ticket.status === "CLOSED" ? (
+          <p style={{ opacity: 0.7 }}>This ticket is closed. Commenting is disabled.</p>
+        ) : (
+          <>
+            <textarea
+              placeholder="Post a comment..."
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+              style={{ width: "100%", height: 80 }}
+            />
+            <button onClick={postComment}>Post</button>
+          </>
+        )}
+
 
         {comments.map((c) => (
           <div key={c.id} style={{ marginTop: 12 }}>

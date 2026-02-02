@@ -1,3 +1,5 @@
+package com.microservices.comment.kafka;
+
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 

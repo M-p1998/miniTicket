@@ -28,10 +28,10 @@ public class TicketService {
 	
 	private final KafkaTemplate<String, Object> kafkaTemplate;
 
-	public TicketService(..., KafkaTemplate<String, Object> kafkaTemplate) {
-	  ...
-	  this.kafkaTemplate = kafkaTemplate;
-	}
+//	public TicketService(..., KafkaTemplate<String, Object> kafkaTemplate) {
+//	  ...
+//	  this.kafkaTemplate = kafkaTemplate;
+//	}
 	
 	public TicketResponse createTicket(TicketRequest ticketRequest, String createdBy) {
 		Ticket ticket = Ticket.builder()
@@ -110,7 +110,7 @@ public class TicketService {
 	    	  ticket.setClosedBy(user);
 	    	  ticket.setClosedAt(Instant.now());
 
-	    	  var event = new TicketClosedEvent(
+	    	  TicketClosedEvent event = new TicketClosedEvent(
 	    	      ticket.getId(),
 	    	      user,
 	    	      ticket.getClosedAt().toString()

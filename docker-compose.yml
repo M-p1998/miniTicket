@@ -1,48 +1,246 @@
-services:
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.0
-    container_name: keycloak
-    command: start-dev
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-    ports:
-      - "8089:8080"
+# services:
+#   keycloak:
+#     image: quay.io/keycloak/keycloak:26.0
+#     container_name: keycloak
+#     command: start-dev
+#     environment:
+#       KEYCLOAK_ADMIN: admin
+#       KEYCLOAK_ADMIN_PASSWORD: admin
+#     ports:
+#       - "8088:8080"
 
+#   postgres_ticket:
+#     image: postgres:15
+#     environment:
+#       POSTGRES_USER: root
+#       POSTGRES_PASSWORD: bondstone
+#       POSTGRES_DB: ticket_service
+#     ports:
+#       - "5433:5432"
+
+#   postgres_comment:
+#     image: postgres:15
+#     environment:
+#       POSTGRES_USER: root
+#       POSTGRES_PASSWORD: bondstone
+#       POSTGRES_DB: comment_service
+#     ports:
+#       - "5434:5432"
+
+#   postgres_user:
+#     image: postgres:15
+#     environment:
+#       POSTGRES_USER: root
+#       POSTGRES_PASSWORD: bondstone
+#       POSTGRES_DB: user_service
+#     ports:
+#       - "5435:5432"
+
+#   redis:
+#     image: redis:7
+#     ports:
+#       - "6379:6379"
+
+#   zookeeper:
+#     image: confluentinc/cp-zookeeper:7.6.1
+#     environment:
+#       ZOOKEEPER_CLIENT_PORT: 2181
+#     ports:
+#       - "2181:2181"
+
+#   kafka:
+#     image: confluentinc/cp-kafka:7.6.1
+#     depends_on: [zookeeper]
+#     ports:
+#       - "9092:9092"
+#     environment:
+#       KAFKA_BROKER_ID: 1
+#       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+#       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+#   ticket-service:
+#     build: ./ticket-service
+#     depends_on: [postgres_ticket, keycloak, kafka, redis]
+#     environment:
+#       SERVER_PORT: 8080
+#       DB_URL: jdbc:postgresql://postgres_ticket:5432/ticket_service
+#       DB_USER: root
+#       DB_PASS: bondstone
+#       KC_ISSUER: http://keycloak:8080/realms/miniTicket
+#       REDIS_HOST: redis
+#       REDIS_PORT: 6379
+#       KAFKA_BOOTSTRAP: kafka:9092
+#     ports:
+#       - "8080:8080"
+
+#   comment-service:
+#     build: ./comment-service
+#     depends_on: [postgres_comment, keycloak, kafka]
+#     environment:
+#       SERVER_PORT: 8081
+#       DB_URL: jdbc:postgresql://postgres_comment:5432/comment_service
+#       DB_USER: root
+#       DB_PASS: bondstone
+#       KC_ISSUER: http://keycloak:8080/realms/miniTicket
+#       KAFKA_BOOTSTRAP: kafka:9092
+#     ports:
+#       - "8081:8081"
+
+#   user-service:
+#     build: ./user-service
+#     depends_on: [postgres_user, keycloak]
+#     environment:
+#       SERVER_PORT: 8083
+#       DB_URL: jdbc:postgresql://postgres_user:5432/user_service
+#       DB_USER: root
+#       DB_PASS: bondstone
+#       KC_ISSUER: http://keycloak:8080/realms/miniTicket
+#     ports:
+#       - "8083:8083"
+
+#   api-gateway:
+#     build: ./api-gateway
+#     depends_on: [ticket-service, comment-service, user-service, keycloak]
+#     environment:
+#       SERVER_PORT: 9001
+#       KC_ISSUER: http://keycloak:8080/realms/miniTicket
+#     ports:
+#       - "9001:9001"
+
+
+services:
+  # -----------------------------
+  # Keycloak database (persistent)
+  # -----------------------------
+  keycloak-db:
+    image: postgres:15
+    container_name: keycloak-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    volumes:
+      - keycloak_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # -----------------------------
+  # Keycloak
+  # -----------------------------
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.8
+    container_name: keycloak
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    command: >
+      start-dev
+      --http-port=8080
+      --hostname=localhost
+      --hostname-strict=false
+      --import-realm
+    environment:
+      # Keycloak 26+ preferred bootstrap vars
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+
+      # Use Postgres
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+
+      KC_PROXY_HEADERS: xforwarded
+
+    ports:
+      - "8088:8080"
+    volumes:
+      # Internal runtime data (themes, etc.)
+      - keycloak_data:/opt/keycloak/data
+      - ./keycloak/import:/opt/keycloak/data/import
+      - ./keycloak/export:/opt/keycloak/data/export
+    healthcheck:
+      # Keycloak is "ready" when this endpoint returns 200
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080 && echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\n\r\n' >&3 && cat <&3 | grep -q '200'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  # -----------------------------
+  # Postgres (per service)
+  # -----------------------------
   postgres_ticket:
     image: postgres:15
+    container_name: postgres_ticket
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: bondstone
       POSTGRES_DB: ticket_service
     ports:
       - "5433:5432"
+    volumes:
+      - ticket_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d ticket_service"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   postgres_comment:
     image: postgres:15
+    container_name: postgres_comment
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: bondstone
       POSTGRES_DB: comment_service
     ports:
       - "5434:5432"
+    volumes:
+      - comment_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d comment_service"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   postgres_user:
     image: postgres:15
+    container_name: postgres_user
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: bondstone
       POSTGRES_DB: user_service
     ports:
       - "5435:5432"
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d user_service"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
+  # -----------------------------
+  # Redis
+  # -----------------------------
   redis:
     image: redis:7
+    container_name: miniticket-redis
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
 
+  # -----------------------------
+  # Kafka + Zookeeper
+  # -----------------------------
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.1
+    container_name: miniticket-zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
     ports:
@@ -50,18 +248,33 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:7.6.1
-    depends_on: [zookeeper]
+    container_name: miniticket-kafka
+    depends_on:
+      - zookeeper
     ports:
       - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+  # -----------------------------
+  # Microservices
+  # -----------------------------
   ticket-service:
     build: ./ticket-service
-    depends_on: [postgres_ticket, keycloak, kafka, redis]
+    container_name: miniticket-ticket-service
+    depends_on:
+      postgres_ticket:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_started
     environment:
       SERVER_PORT: 8080
       DB_URL: jdbc:postgresql://postgres_ticket:5432/ticket_service
@@ -76,7 +289,14 @@ services:
 
   comment-service:
     build: ./comment-service
-    depends_on: [postgres_comment, keycloak, kafka]
+    container_name: miniticket-comment-service
+    depends_on:
+      postgres_comment:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+      kafka:
+        condition: service_started
     environment:
       SERVER_PORT: 8081
       DB_URL: jdbc:postgresql://postgres_comment:5432/comment_service
@@ -89,7 +309,12 @@ services:
 
   user-service:
     build: ./user-service
-    depends_on: [postgres_user, keycloak]
+    container_name: miniticket-user-service
+    depends_on:
+      postgres_user:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
     environment:
       SERVER_PORT: 8083
       DB_URL: jdbc:postgresql://postgres_user:5432/user_service
@@ -101,9 +326,25 @@ services:
 
   api-gateway:
     build: ./api-gateway
-    depends_on: [ticket-service, comment-service, user-service, keycloak]
+    container_name: miniticket-api-gateway
+    depends_on:
+      - ticket-service
+      - comment-service
+      - user-service
+      - keycloak
     environment:
       SERVER_PORT: 9001
       KC_ISSUER: http://keycloak:8080/realms/miniTicket
     ports:
       - "9001:9001"
+
+# -----------------------------
+# Volumes (ALL DECLARED)
+# -----------------------------
+volumes:
+  keycloak_db_data:
+  keycloak_data:
+  ticket_db_data:
+  comment_db_data:
+  user_db_data:
+  redis_data:

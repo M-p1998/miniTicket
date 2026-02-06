@@ -7,23 +7,55 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
+//@Configuration
+//public class SecurityConfig {
+//
+//    @Bean
+//    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http
+//            .csrf(csrf -> csrf.disable())
+//            .authorizeHttpRequests(auth -> auth
+//                .requestMatchers("/api/users/me").authenticated()
+//                .requestMatchers(HttpMethod.POST, "/api/users/**").authenticated()
+//                .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
+//                .requestMatchers(HttpMethod.DELETE, "/api/users/**").authenticated()
+//                .requestMatchers(HttpMethod.GET, "/api/users/{id:\\d+}").permitAll()
+//                .requestMatchers(HttpMethod.GET, "/api/users").permitAll()
+//                .anyRequest().authenticated()
+//            )
+//            .oauth2ResourceServer(oauth2 -> oauth2.jwt());
+//
+//        return http.build();
+//    }
+//}
+
+
 @Configuration
 public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
+        return http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // you can choose what to allow
-                .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/users/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/api/users/**").authenticated()
+                .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
-
-        return http.build();
+      
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt())
+            .build();
     }
+	
+//	@Bean
+//	SecurityFilterChain security(HttpSecurity http) throws Exception {
+//	    http
+//	        .csrf(csrf -> csrf.disable())
+//	        .authorizeHttpRequests(auth -> auth
+//	            .requestMatchers("/actuator/**").permitAll()
+//	            .anyRequest().authenticated()
+//	        )
+//	        .oauth2ResourceServer(oauth2 -> oauth2.jwt());
+//
+//	    return http.build();
+//	}
 }

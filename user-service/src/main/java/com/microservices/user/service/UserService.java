@@ -158,4 +158,25 @@ public class UserService {
                 u.getCreatedAt()
         );
     }
+    
+    public UserResponse findOrCreate(String keycloakUserId, String username, String email) {
+        UserProfile profile = repo
+            .findByKeycloakUserId(keycloakUserId)
+            .orElseGet(() -> {
+                UserProfile p = new UserProfile();
+                p.setKeycloakUserId(keycloakUserId);
+                p.setUsername(username);
+                p.setEmail(email);
+                p.setTitle("New User");
+                p.setFunFacts("");
+                return repo.save(p);
+            });
+
+        return toResponse(profile);
+    }
+
+    
+    
+    
+
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.microservices.user.dto.UserRequest;
 import com.microservices.user.dto.UserResponse;
@@ -40,7 +41,7 @@ public class UserController {
             @AuthenticationPrincipal Jwt jwt
     ) {
         String keycloakUserId = jwt.getSubject(); 
-        String username = jwt.getClaimAsString("display_username");
+        String username = jwt.getClaimAsString("preferred_username");
         String email = jwt.getClaimAsString("email");
         
         
@@ -63,12 +64,89 @@ public class UserController {
 //    public UserResponse getByUsername(@PathVariable String username) {
 //        return service.getByUsername(username);
 //    }
+//    @GetMapping("/me")
+//    public UserResponse me(@AuthenticationPrincipal Jwt jwt) {
+//    	String keycloakUserId = jwt.getSubject();
+//        return service.getByKeycloakUserId(keycloakUserId);
+//    }
+    
+    
+//    @GetMapping("/me")
+//    public UserResponse me(@AuthenticationPrincipal Jwt jwt) {
+//        if (jwt == null) {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing JWT");
+//        }
+//
+//        String kcId = jwt.getSubject();
+//        String username = jwt.getClaimAsString("display_username");
+//        if (username == null) username = jwt.getClaimAsString("preferred_username");
+//        String email = jwt.getClaimAsString("email");
+//
+//        if (username == null || email == null) {
+//            throw new ResponseStatusException(
+//                HttpStatus.BAD_REQUEST,
+//                "Missing display_username or email in token"
+//            );
+//        }
+//
+//        return service.findOrCreate(kcId, username, email);
+//    }
+    
+//    @GetMapping("/me")
+//    public UserResponse me(@AuthenticationPrincipal Jwt jwt) {
+//        if (jwt == null) {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing JWT");
+//        }
+//
+//        String kcId = jwt.getSubject();
+//
+//        String username = jwt.getClaimAsString("display_username");
+//        if (username == null) {
+//            username = jwt.getClaimAsString("preferred_username");
+//        }
+//
+//        String email = jwt.getClaimAsString("email");
+//
+//        if (username == null || email == null) {
+//            throw new ResponseStatusException(
+//                HttpStatus.BAD_REQUEST,
+//                "Token missing username or email"
+//            );
+//        }
+//
+//        return service.findOrCreate(kcId, username, email);
+//    }
+
     @GetMapping("/me")
     public UserResponse me(@AuthenticationPrincipal Jwt jwt) {
-    	String keycloakUserId = jwt.getSubject();
-        return service.getByKeycloakUserId(keycloakUserId);
+        if (jwt == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing JWT");
+        }
+
+        String keycloakUserId = jwt.getSubject();
+        String username = jwt.getClaimAsString("preferred_username");
+        String email = jwt.getClaimAsString("email");
+
+        if (username == null || email == null) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "JWT missing username or email"
+            );
+        }
+
+        return service.findOrCreate(keycloakUserId, username, email);
     }
-    
+
+
+
+
+
+//    @GetMapping("/me")
+//    public UserProfileResponse me(@AuthenticationPrincipal Jwt jwt) {
+//        String keycloakId = jwt.getSubject();
+//        return service.getOrCreateProfile(jwt);
+//    }
+
 //    @GetMapping("/me")
 //    public UserResponse me(@AuthenticationPrincipal Jwt jwt) {
 //        return service.getByKeycloakUserId(
@@ -100,6 +178,32 @@ public class UserController {
     public void delete(@PathVariable("id") Long id) {
         service.delete(id);
     }
+    
+    
+    
+    
+
+
+    
+//    public UserProfileResponse getOrCreateProfile(Jwt jwt) {
+//        String kcId = jwt.getSubject();
+//        String username = jwt.getClaimAsString("preferred_username");
+//        String email = jwt.getClaimAsString("email");
+//
+//        return repo.findByKeycloakUserId(kcId)
+//            .map(this::toResponse)
+//            .orElseGet(() -> {
+//                UserProfile u = UserProfile.builder()
+//                    .username(username)
+//                    .email(email)
+//                    .keycloakUserId(kcId)
+//                    .title("")
+//                    .funFacts("")
+//                    .build();
+//                return toResponse(repo.save(u));
+//            });
+//    }
+
     
     
     

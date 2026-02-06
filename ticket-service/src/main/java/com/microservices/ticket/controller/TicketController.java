@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.microservices.ticket.dto.TicketRequest;
 import com.microservices.ticket.dto.TicketResponse;
@@ -45,9 +45,16 @@ public class TicketController {
 	        @RequestBody TicketRequest ticketRequest,
 	        @AuthenticationPrincipal Jwt jwt
 	) {
-	    String createdBy = jwt.getClaimAsString("display_username");
+	    String createdBy = jwt.getClaimAsString("preferred_username");
+//	    if (createdBy == null) {
+//	        createdBy = jwt.getSubject(); 
+//	    }
+	    
 	    if (createdBy == null) {
-	        createdBy = jwt.getSubject(); // fallback
+	        throw new ResponseStatusException(
+	            HttpStatus.UNAUTHORIZED,
+	            "preferred_username missing from token"
+	        );
 	    }
 
 	    return ticketService.createTicket(ticketRequest, createdBy);
@@ -77,7 +84,7 @@ public class TicketController {
 //		return ticketService.updateStatus(id, status, user);
 //	}
 	
-	@PatchMapping("/api/tickets/{id}/status")
+	@PatchMapping("/{id}/status")
 	public TicketResponse updateStatus(@PathVariable Long id, @RequestBody StatusRequest req, JwtAuthenticationToken auth) {
 	  String user = auth.getToken().getClaimAsString("display_username");
 	  return ticketService.updateStatus(id, TicketStatus.valueOf(req.status()), user);

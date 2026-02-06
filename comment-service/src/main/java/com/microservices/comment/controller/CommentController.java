@@ -47,7 +47,7 @@ public class CommentController {
             );
         }
 
-		String author = jwt.getClaimAsString("display_username");
+		String author = jwt.getClaimAsString("preferred_username");
 		
 		// create a new request that includes the author
 		CommentRequest withAuthor = new CommentRequest(

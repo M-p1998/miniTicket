@@ -1,1 +1,11 @@
 /.metadata/
+**/data/
+**/pg_wal/
+
+# terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+terraform.zip
+
+.DS_Store

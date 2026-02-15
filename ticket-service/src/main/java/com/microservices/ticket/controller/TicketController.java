@@ -45,19 +45,19 @@ public class TicketController {
 	        @RequestBody TicketRequest ticketRequest,
 	        @AuthenticationPrincipal Jwt jwt
 	) {
-	    String createdBy = jwt.getClaimAsString("preferred_username");
+	    String createdTicket = jwt.getClaimAsString("preferred_username");
 //	    if (createdBy == null) {
 //	        createdBy = jwt.getSubject(); 
 //	    }
 	    
-	    if (createdBy == null) {
+	    if (createdTicket == null) {
 	        throw new ResponseStatusException(
 	            HttpStatus.UNAUTHORIZED,
 	            "preferred_username missing from token"
 	        );
 	    }
 
-	    return ticketService.createTicket(ticketRequest, createdBy);
+	    return ticketService.createTicket(ticketRequest, createdTicket);
 	}
 	
 	@GetMapping

@@ -5,6 +5,6 @@ import com.microservices.ticket.model.TicketPriority;
 public record TicketRequest(
         String subject,
         String description,
-        TicketPriority priority,
-        String createdBy
+        TicketPriority priority
+        
 ) {}

@@ -7,42 +7,42 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
-//@Configuration
-//public class SecurityConfig {
-//
-//    @Bean
-//    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//            .csrf(csrf -> csrf.disable())
-//            .authorizeHttpRequests(auth -> auth
-//                // OPTIONAL: allow GET without login
-//                .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
-//
-//                // REQUIRE login for write
-//                .requestMatchers(HttpMethod.POST, "/api/comments/**").authenticated()
-//                .requestMatchers(HttpMethod.DELETE, "/api/comments/**").authenticated()
-//
-//                .anyRequest().authenticated()
-//            )
-//            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
-//
-//        return http.build();
-//    }
-//}
-
-
 @Configuration
 public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
+        http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/**").permitAll()
+                // OPTIONAL: allow GET without login
+                .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
+
+                // REQUIRE login for write
+                .requestMatchers(HttpMethod.POST, "/api/comments/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/comments/**").authenticated()
+
                 .anyRequest().authenticated()
             )
-            // ⬇️ DO NOT enable oauth2ResourceServer here
-            .build();
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+
+        return http.build();
     }
 }
+
+
+//@Configuration
+//public class SecurityConfig {
+//
+//    @Bean
+//    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        return http
+//            .csrf(csrf -> csrf.disable())
+//            .authorizeHttpRequests(auth -> auth
+//                .requestMatchers("/actuator/**").permitAll()
+//                .anyRequest().authenticated()
+//            )
+//            // ⬇️ DO NOT enable oauth2ResourceServer here
+//            .build();
+//    }
+//}

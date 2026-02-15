@@ -1,9 +1,11 @@
 package com.microservices.ticket.service;
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,10 @@ public class TicketService {
 //		this.kafkaTemplate = kafkaTemplate;
 //	}
 	
+	@Caching(evict = {
+		      @CacheEvict(cacheNames = "tickets", allEntries = true, beforeInvocation = true),
+		      @CacheEvict(cacheNames = "ticketById", allEntries = true, beforeInvocation = true)
+		  })
 	public TicketResponse createTicket(TicketRequest ticketRequest, String createdBy) {
 		Ticket ticket = Ticket.builder()
 				.subject(ticketRequest.subject())
@@ -56,7 +62,7 @@ public class TicketService {
 				.map(ticket -> new TicketResponse(ticket.getId(), ticket.getSubject(), ticket.getDescription(), ticket.getStatus(), ticket.getPriority(), ticket.getCreatedBy(),
 					ticket.getCreatedAt(),ticket.getClosedBy(),
 			        ticket.getClosedAt()))
-				.toList();
+				.collect(Collectors.toList());
 	}
 	
 	@Cacheable(cacheNames = "ticketById", key = "#id")
@@ -82,7 +88,11 @@ public class TicketService {
 	    );
 	}
 	
-	@CacheEvict(cacheNames = { "tickets", "ticketById" }, allEntries = true)
+//	@CacheEvict(cacheNames = { "tickets", "ticketById" }, allEntries = true)
+	@Caching(evict = {
+		      @CacheEvict(cacheNames = "tickets", allEntries = true, beforeInvocation = true),
+		      @CacheEvict(cacheNames = "ticketById", allEntries = true, beforeInvocation = true)
+		  })
 	public TicketResponse updateTicket(Long id, TicketRequest req) {
 	    Ticket ticket = ticketRepository.findById(id)
 	        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found: " + id));
@@ -95,7 +105,11 @@ public class TicketService {
 	    return toResponse(saved);
 	}
 	
-	@CacheEvict(cacheNames = { "tickets", "ticketById" }, allEntries = true)
+//	@CacheEvict(cacheNames = { "tickets", "ticketById" }, allEntries = true)
+	@Caching(evict = {
+		      @CacheEvict(cacheNames = "tickets", allEntries = true, beforeInvocation = true),
+		      @CacheEvict(cacheNames = "ticketById", allEntries = true, beforeInvocation = true)
+		  })
 	public TicketResponse updateStatus(Long id, TicketStatus status, String user) {
 	    Ticket ticket = ticketRepository.findById(id)
 	        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found: " + id));
@@ -123,6 +137,10 @@ public class TicketService {
 	    return toResponse(saved);
 	}
 	
+	@Caching(evict = {
+		      @CacheEvict(cacheNames = "tickets", allEntries = true, beforeInvocation = true),
+		      @CacheEvict(cacheNames = "ticketById", allEntries = true, beforeInvocation = true)
+		  })
 	public void deleteTicket(Long id) {
 	    if (!ticketRepository.existsById(id)) {
 	    	throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found: " + id);

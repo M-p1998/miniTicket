@@ -64,25 +64,37 @@
 
 import keycloak from "../auth/keycloak";
 
-export async function apiFetch<T>(url: string, options: RequestInit = {}) {
+export async function apiFetch<T>(
+  url: string,
+  options: RequestInit = {}
+): Promise<T> {
   if (!keycloak.authenticated) {
     throw new Error("Not authenticated");
   }
 
+  // Ensure token is fresh
   await keycloak.updateToken(30);
 
   const headers = new Headers(options.headers);
   headers.set("Authorization", `Bearer ${keycloak.token}`);
   headers.set("Content-Type", "application/json");
 
-  const res = await fetch(url, { ...options, headers });
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`HTTP ${res.status}: ${text}`);
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`HTTP ${response.status}: ${text}`);
   }
 
-  return res.status === 204 ? null as T : await res.json();
+  // Handle empty responses (204)
+  if (response.status === 204) {
+    return null as T;
+  }
+
+  return response.json();
 }
 
 export const GATEWAY_BASE = "http://localhost:9001";

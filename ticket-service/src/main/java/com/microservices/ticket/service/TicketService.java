@@ -105,38 +105,38 @@ public class TicketService {
 	    return toResponse(saved);
 	}
 	
-//	@CacheEvict(cacheNames = { "tickets", "ticketById" }, allEntries = true)
-	@Caching(evict = {
-		      @CacheEvict(cacheNames = "tickets", allEntries = true, beforeInvocation = true),
-		      @CacheEvict(cacheNames = "ticketById", allEntries = true, beforeInvocation = true)
-		  })
-	public TicketResponse updateStatus(Long id, TicketStatus status, String user) {
-	    Ticket ticket = ticketRepository.findById(id)
-	        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found: " + id));
 
-	    ticket.setStatus(status);
+//	@Caching(evict = {
+//		      @CacheEvict(cacheNames = "tickets", allEntries = true, beforeInvocation = true),
+//		      @CacheEvict(cacheNames = "ticketById", allEntries = true, beforeInvocation = true)
+//		  })
+//	public TicketResponse updateStatus(Long id, TicketStatus status, String user) {
+//	    Ticket ticket = ticketRepository.findById(id)
+//	        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found: " + id));
+//
+//	    ticket.setStatus(status);
+////	    if (status == TicketStatus.CLOSED) {
+////	        ticket.setClosedBy(user);
+////	        ticket.setClosedAt(Instant.now());
+////	      }
+//	    
 //	    if (status == TicketStatus.CLOSED) {
-//	        ticket.setClosedBy(user);
-//	        ticket.setClosedAt(Instant.now());
-//	      }
-	    
-	    if (status == TicketStatus.CLOSED) {
-	    	  ticket.setClosedBy(user);
-	    	  ticket.setClosedAt(Instant.now());
-
-	    	  TicketClosedEvent event = new TicketClosedEvent(
-	    	      ticket.getId(),
-	    	      user,
-	    	      ticket.getClosedAt().toString()
-	    	  );
-
-	    	  kafkaTemplate.send("ticket.closed", String.valueOf(ticket.getId()), event);
-	    	}
-	    
-	    Ticket saved = ticketRepository.save(ticket);
-	    return toResponse(saved);
-	}
-	
+//	    	  ticket.setClosedBy(user);
+//	    	  ticket.setClosedAt(Instant.now());
+//
+//	    	  TicketClosedEvent event = new TicketClosedEvent(
+//	    	      ticket.getId(),
+//	    	      user,
+//	    	      ticket.getClosedAt().toString()
+//	    	  );
+//
+//	    	  kafkaTemplate.send("ticket.closed", String.valueOf(ticket.getId()), event);
+//	    	}
+//	    
+//	    Ticket saved = ticketRepository.save(ticket);
+//	    return toResponse(saved);
+//	}
+//	
 	@Caching(evict = {
 		      @CacheEvict(cacheNames = "tickets", allEntries = true, beforeInvocation = true),
 		      @CacheEvict(cacheNames = "ticketById", allEntries = true, beforeInvocation = true)
@@ -150,6 +150,37 @@ public class TicketService {
 
 
 	
+	@Caching(evict = {
+		    @CacheEvict(cacheNames = "tickets", allEntries = true, beforeInvocation = true),
+		    @CacheEvict(cacheNames = "ticketById", allEntries = true, beforeInvocation = true)
+		})
+		public TicketResponse updateStatus(Long id, TicketStatus status, String user) {
+		    Ticket ticket = ticketRepository.findById(id)
+		            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found: " + id));
+
+		    ticket.setStatus(status);
+
+		    if (status == TicketStatus.CLOSED) {
+		        ticket.setClosedBy(user);
+		        ticket.setClosedAt(Instant.now());
+		        
+		        // ✅ Don't let Kafka failure block the response
+		        try {
+		            TicketClosedEvent event = new TicketClosedEvent(
+		                ticket.getId(),
+		                user,
+		                ticket.getClosedAt().toString()
+		            );
+		            kafkaTemplate.send("ticket.closed", String.valueOf(ticket.getId()), event);
+		            log.info("Sent ticket-closed event for ticket {}", ticket.getId());
+		        } catch (Exception e) {
+		            log.warn("Failed to send Kafka event for ticket {}: {}", id, e.getMessage());
+		        }
+		    }
+
+		    Ticket saved = ticketRepository.save(ticket);
+		    return toResponse(saved);
+		}
 	
 
 }

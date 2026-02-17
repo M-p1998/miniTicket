@@ -39,13 +39,20 @@ export default function TicketDetailPage() {
     if (!token || !id) return;
 
     // Load ticket
-    apiFetch<Ticket>(`${GATEWAY_BASE}/api/tickets/${id}`, token)
-      .then(setTicket);
+    // apiFetch<Ticket>(`${GATEWAY_BASE}/api/tickets/${id}`, token)
+    //   .then(setTicket);
 
-    // Load comments
+    // // Load comments
+    // apiFetch<Comment[]>(
+    //   `${GATEWAY_BASE}/api/comments?ticketId=${id}`,
+    //   token
+    // ).then(setComments);
+
+    apiFetch<Ticket>(`${GATEWAY_BASE}/api/tickets/${id}`)
+  .then(setTicket);
+
     apiFetch<Comment[]>(
-      `${GATEWAY_BASE}/api/comments?ticketId=${id}`,
-      token
+      `${GATEWAY_BASE}/api/comments?ticketId=${id}`
     ).then(setComments);
   }, [id, token]);
 
@@ -54,16 +61,16 @@ export default function TicketDetailPage() {
     if (!message.trim() || !token || ticket?.status === "CLOSED") return;
 
     const created = await apiFetch<Comment>(
-      `${GATEWAY_BASE}/api/comments`,
-      token,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          ticketId: Number(id),
-          message
-        })
-      }
-    );
+  `${GATEWAY_BASE}/api/comments`,
+  {
+    method: "POST",
+    body: JSON.stringify({
+      ticketId: Number(id),
+      message
+    })
+  }
+);
+
 
     setComments([...comments, created]);
     setMessage("");
@@ -108,21 +115,19 @@ const closeTicket = async () => {
 
   // PATCH endpoint you’ll add in ticket-service
   const updated = await apiFetch<Ticket>(
-    `${GATEWAY_BASE}/api/tickets/${id}/status`,
-    token,
-    {
-      method: "PATCH",
-      body: JSON.stringify({ status: "CLOSED" }),
-    }
-  );
+  `${GATEWAY_BASE}/api/tickets/${id}/status`,
+  {
+    method: "PATCH",
+    body: JSON.stringify({ status: "CLOSED" }),
+  }
+);
+
 
   setTicket(updated);
 
-  // refresh comments after Kafka consumer inserts system comment
   const latestComments = await apiFetch<Comment[]>(
-    `${GATEWAY_BASE}/api/comments?ticketId=${id}`,
-    token
-  );
+  `${GATEWAY_BASE}/api/comments?ticketId=${id}`
+);
   setComments(latestComments);
 };
 

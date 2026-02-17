@@ -306,6 +306,7 @@ services:
       KAFKA_BOOTSTRAP: kafka:9092
     ports:
       - "8081:8081"
+    restart: on-failure
 
   user-service:
     build: ./user-service

@@ -41,17 +41,15 @@ pipeline {
 
     stage('Deploy to AKS') {
       steps {
-        sh 'mkdir -p ~/.kube'
-        sh 'cp $KUBECONFIG_CRED ~/.kube/config'
-        sh 'kubectl apply -f infra/k8s/'
-        sh 'kubectl rollout restart deployment -n miniticket'
+        sh 'kubectl --kubeconfig=$KUBECONFIG_CRED apply -f infra/k8s/'
+        sh 'kubectl --kubeconfig=$KUBECONFIG_CRED rollout restart deployment -n miniticket'
       }
     }
 
     stage('Verify Deployment') {
       steps {
-        sh 'kubectl get pods -n miniticket'
-        sh 'kubectl get svc -n miniticket'
+        sh 'kubectl --kubeconfig=$KUBECONFIG_CRED get pods -n miniticket'
+        sh 'kubectl --kubeconfig=$KUBECONFIG_CRED get svc -n miniticket'
       }
     }
   }

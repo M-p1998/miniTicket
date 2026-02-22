@@ -150,13 +150,21 @@ const closeTicket = async () => {
           <span className="pill closed">CLOSED</span>
         )} */}
 
-        {ticket.status !== "CLOSED" && (
+        {/* {ticket.status !== "CLOSED" && (
           <button onClick={closeTicket} style={{ marginTop: 12 }}>
             Close Ticket
           </button>
         )}
         {ticket.status === "CLOSED" && (
           <p><b>Closed by:</b> {ticket.closedBy} · {timeAgo(ticket.closedAt || ticket.createdAt)}</p>
+        )} */}
+        {ticket.status !== "CLOSED" && (
+          <button className="btn-close-ticket" onClick={closeTicket}>
+            Close Ticket
+          </button>
+        )}
+        {ticket.status === "CLOSED" && (
+          <p><b>Closed by:</b> {ticket.closedBy} {timeAgo(ticket.closedAt || ticket.createdAt)}</p>
         )}
 
       </div>
@@ -216,7 +224,7 @@ const closeTicket = async () => {
           Post
         </button> */}
 
-        {ticket.status === "CLOSED" ? (
+        {/* {ticket.status === "CLOSED" ? (
           <p style={{ opacity: 0.7 }}>This ticket is closed. Commenting is disabled.</p>
         ) : (
           <>
@@ -228,12 +236,25 @@ const closeTicket = async () => {
             />
             <button onClick={postComment}>Post</button>
           </>
+        )} */}
+        {ticket.status === "CLOSED" ? (
+          <p style={{ opacity: 0.7 }}>This ticket is closed. Commenting is disabled.</p>
+        ) : (
+          <>
+            <textarea
+              placeholder="Post a comment..."
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+              style={{ width: "100%", height: 80 }}
+            />
+            <button className="btn-post" onClick={postComment}>Post</button>
+          </>
         )}
 
 
         {comments.map((c) => (
           <div key={c.id} style={{ marginTop: 12 }}>
-            <b>{c.author}</b> · {timeAgo(c.createdAt)}
+            <b>{c.author}</b> {timeAgo(c.createdAt)}
             <p>{c.message}</p>
           </div>
         ))}

@@ -1,32 +1,29 @@
 import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 
-const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+const IDLE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
 
 export default function IdleLogout() {
   const { token, logout } = useAuth();
-  const navigate = useNavigate();
-
   const timeoutRef = useRef<number | null>(null);
 
   const resetTimer = () => {
     if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
 
+    if (!token) return;
+
     timeoutRef.current = window.setTimeout(() => {
-      // Only auto-logout if user is currently logged in
-      if (token) {
-        logout();            
-        // navigate("/login");  
-      }
+      console.log("Auto-logout: 10 minutes of inactivity");
+      logout();
     }, IDLE_TIMEOUT_MS);
   };
 
   useEffect(() => {
-    // If user is not logged in, do nothing
-    if (!token) return;
+    if (!token) {
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+      return;
+    }
 
-    // Start timer immediately when user becomes logged in
     resetTimer();
 
     const events: (keyof WindowEventMap)[] = [
@@ -38,15 +35,15 @@ export default function IdleLogout() {
       "click",
     ];
 
-    const handleActivity = () => resetTimer();
-
-    events.forEach((event) => window.addEventListener(event, handleActivity, { passive: true }));
+    events.forEach((event) =>
+      window.addEventListener(event, resetTimer, { passive: true })
+    );
 
     return () => {
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-      events.forEach((event) => window.removeEventListener(event, handleActivity));
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
     };
-  }, [token]);
+  }, [token, logout]);
 
-  return null; // no UI
+  return null;
 }

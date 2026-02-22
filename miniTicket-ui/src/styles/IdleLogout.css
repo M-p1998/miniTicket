@@ -1,0 +1,98 @@
+.idle-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.idle-modal {
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.idle-modal h3 {
+  margin: 0 0 16px 0;
+  font-size: 24px;
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.idle-modal p {
+  margin: 0 0 24px 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.idle-modal p strong {
+  color: #e74c3c;
+  font-size: 18px;
+}
+
+.idle-modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.idle-modal-actions .btn {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.idle-modal-actions .btn.primary {
+  background: #3498db;
+  color: white;
+}
+
+.idle-modal-actions .btn.primary:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.idle-modal-actions .btn.secondary {
+  background: #ecf0f1;
+  color: #7f8c8d;
+}
+
+.idle-modal-actions .btn.secondary:hover {
+  background: #bdc3c7;
+}

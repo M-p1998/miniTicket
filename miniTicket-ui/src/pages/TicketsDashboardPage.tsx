@@ -65,7 +65,7 @@ export default function TicketsDashboardPage() {
     try {
       const data = await apiFetch<TicketResponse[]>(
         `${GATEWAY_BASE}/api/tickets`,
-        token
+
       );
       dispatch(setTickets(data));
       setStatusMsg(data.length ? "" : "No tickets yet.");
@@ -95,18 +95,35 @@ export default function TicketsDashboardPage() {
   //     });
   // }, [tickets, tab, q]);
 
+  // const deleteTicket = async (id: number) => {
+  //   if (!token) return;
+
+  //   if (!confirm("Delete this ticket?")) return;
+
+  //   await apiFetch(`${GATEWAY_BASE}/api/tickets/${id}`, token, {
+  //     method: "DELETE",
+  //   });
+
+  //   // setTickets((prev) => prev.filter((t) => t.id !== id));
+  //   dispatch(removeTicket(id));
+
+  // };
+
   const deleteTicket = async (id: number) => {
     if (!token) return;
 
     if (!confirm("Delete this ticket?")) return;
 
-    await apiFetch(`${GATEWAY_BASE}/api/tickets/${id}`, token, {
-      method: "DELETE",
-    });
+    try {
+      await apiFetch(`${GATEWAY_BASE}/api/tickets/${id}`, {
+        method: "DELETE",
+      });
 
-    // setTickets((prev) => prev.filter((t) => t.id !== id));
-    dispatch(removeTicket(id));
-
+      dispatch(removeTicket(id));
+    } catch (e) {
+      console.error("Delete failed:", e);
+      alert("Failed to delete ticket");
+    }
   };
 
   const filtered = useMemo(() => {

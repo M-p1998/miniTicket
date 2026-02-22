@@ -14,12 +14,62 @@ spec:
         app: api-gateway
     spec:
       containers:
-        - name: api-gateway
-          image: miniticketacr12345.azurecr.io/miniticket/api-gateway:latest
-          ports:
-            - containerPort: 9001
-          env:
-            - name: SERVER_PORT
-              value: "9001"
-            - name: KC_ISSUER
-              value: http://keycloak:8080/realms/miniTicket
+      - name: api-gateway
+        image: miniticketacr12345.azurecr.io/miniticket/api-gateway:latest
+        ports:
+        - containerPort: 9001
+        env:
+        - name: SERVER_PORT
+          value: "9001"
+        - name: KC_ISSUER
+          valueFrom:
+            secretKeyRef:
+              name: miniticket-secrets
+              key: KC_ISSUER
+        - name: KC_JWK_URI
+          valueFrom:
+            secretKeyRef:
+              name: miniticket-secrets
+              key: KC_JWK_URI
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: miniticket
+spec:
+  type: LoadBalancer
+  selector:
+    app: api-gateway
+  ports:
+    - protocol: TCP
+      port: 9001
+      targetPort: 9001
+
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: api-gateway
+#   namespace: miniticket
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: api-gateway
+#   template:
+#     metadata:
+#       labels:
+#         app: api-gateway
+#     spec:
+#       containers:
+#         - name: api-gateway
+#           image: miniticketacr12345.azurecr.io/miniticket/api-gateway:latest
+#           ports:
+#             - containerPort: 9001
+#           env:
+#             - name: SERVER_PORT
+#               value: "9001"
+#             - name: KC_ISSUER
+#               # value: http://keycloak:8080/realms/miniTicket
+#               value: http://4.153.75.53:8080/realms/miniTicket

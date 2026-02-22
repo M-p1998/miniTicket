@@ -1,5 +1,97 @@
-- hosts: localhost
+---
+- name: Deploy MiniTicket to Azure Kubernetes Service
+  hosts: localhost
   connection: local
+  gather_facts: false
+  
+  vars:
+    namespace: miniticket
+    manifests_dir: "{{ playbook_dir }}/../k8s"
+  
   tasks:
-    - name: Apply Kubernetes manifests
-      shell: kubectl apply -f infra/k8s/
+    - name: Check kubectl is available
+      command: kubectl version --client
+      register: kubectl_version
+      changed_when: false
+      
+    - name: Display kubectl version
+      debug:
+        msg: "Using kubectl: {{ kubectl_version.stdout_lines[0] }}"
+    
+    - name: Get current Kubernetes context
+      command: kubectl config current-context
+      register: kube_context
+      changed_when: false
+      
+    - name: Display deployment target
+      debug:
+        msg: "Deploying to: {{ kube_context.stdout }}"
+    
+    - name: Create namespace
+      command: kubectl apply -f {{ manifests_dir }}/00-namespace.yaml
+      
+    - name: Apply secrets
+      command: kubectl apply -f {{ manifests_dir }}/01-secrets.yaml
+      
+    - name: Deploy PostgreSQL databases
+      command: kubectl apply -f {{ manifests_dir }}/10-postgres.yaml
+      
+    - name: Deploy Redis cache
+      command: kubectl apply -f {{ manifests_dir }}/20-redis.yaml
+      
+    - name: Deploy Kafka messaging
+      command: kubectl apply -f {{ manifests_dir }}/30-kafka.yaml
+      
+    - name: Deploy Keycloak authentication
+      command: kubectl apply -f {{ manifests_dir }}/40-keycloak.yaml
+      
+    - name: Expose Keycloak externally
+      command: kubectl apply -f {{ manifests_dir }}/41-keycloak-lb.yaml
+      
+    - name: Deploy Ticket microservice
+      command: kubectl apply -f {{ manifests_dir }}/50-ticket-service.yaml
+      
+    - name: Deploy Comment microservice
+      command: kubectl apply -f {{ manifests_dir }}/51-comment-service.yaml
+      
+    - name: Deploy User microservice
+      command: kubectl apply -f {{ manifests_dir }}/52-user-service.yaml
+      
+    - name: Deploy API Gateway
+      command: kubectl apply -f {{ manifests_dir }}/53-api-gateway.yaml
+      
+    - name: Expose API Gateway externally
+      command: kubectl apply -f {{ manifests_dir }}/90-api-gateway-lb.yaml
+      
+    - name: Wait for pods to be ready
+      command: kubectl wait --for=condition=ready pod --all -n {{ namespace }} --timeout=300s
+      register: wait_result
+      ignore_errors: true
+      
+    - name: Get all pods status
+      command: kubectl get pods -n {{ namespace }} -o wide
+      register: pods_output
+      changed_when: false
+      
+    - name: Display pods
+      debug:
+        msg: "{{ pods_output.stdout_lines }}"
+        
+    - name: Get all services
+      command: kubectl get svc -n {{ namespace }}
+      register: services_output
+      changed_when: false
+      
+    - name: Display services and endpoints
+      debug:
+        msg: "{{ services_output.stdout_lines }}"
+        
+    - name: Deployment summary
+      debug:
+        msg: 
+          - "=========================================="
+          - "MiniTicket Deployment Complete!"
+          - "=========================================="
+          - "Namespace: {{ namespace }}"
+          - "Check services above for external IPs"
+          - "=========================================="

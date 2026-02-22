@@ -97,4 +97,4 @@ export async function apiFetch<T>(
   return response.json();
 }
 
-export const GATEWAY_BASE = "http://localhost:9001";
+export const GATEWAY_BASE = "http://20.190.206.2:9001";

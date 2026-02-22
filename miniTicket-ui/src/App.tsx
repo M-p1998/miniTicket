@@ -24,6 +24,7 @@ function Protected({ children }: { children: JSX.Element }) {
 export default function App() {
   return (
     <>
+      <IdleLogout />
       <div className="app-layout">
       <Navbar />
       <main className="app-content">

@@ -26,7 +26,7 @@ spec:
               valueFrom: { secretKeyRef: { name: miniticket-secrets, key: POSTGRES_PASSWORD } }
             - name: KC_ISSUER
               # value: http://keycloak:8080/realms/miniTicket
-              value: http://4.153.75.53:8080/realms/miniTicket
+              value: https://auth.miniticket.online/realms/miniTicket
             - name: REDIS_HOST
               value: redis
             - name: REDIS_PORT

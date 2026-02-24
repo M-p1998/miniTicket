@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login: () => keycloak.login(),
       register: () => keycloak.register(),
       logout: () =>
-        keycloak.logout({ redirectUri: "http://localhost:5173/" }),
+        keycloak.logout({ redirectUri: window.location.origin + "/" }),
     }),
     [isAuthenticated, token, username, email]
   );

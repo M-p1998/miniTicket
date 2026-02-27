@@ -627,8 +627,6 @@ acr_name            = "miniticketacr12345"
 
 ## Roadmap
 
-### ✅ Completed
-
 - [x] Microservices architecture (Ticket, Comment, User, API Gateway)
 - [x] React frontend with TypeScript
 - [x] Keycloak authentication (OpenID Connect)
@@ -648,23 +646,6 @@ acr_name            = "miniticketacr12345"
 - [x] 10-minute idle auto-logout
 - [x] Paginated ticket dashboard with search and filters
 
-### 🔜 Planned
-
-- [ ] **Persistent Keycloak database** — Replace in-memory H2 with PostgreSQL so realm/client/user config survives pod restarts
-- [ ] **Email notifications** — Notify ticket owners when comments are added or tickets are closed
-- [ ] **Role-based access control** — Admin vs. regular user roles with different permissions
-- [ ] **File attachments** — Upload screenshots or documents to tickets
-- [ ] **Ticket assignment** — Assign tickets to specific users or teams
-- [ ] **Dashboard analytics** — Charts showing ticket volume, resolution time, priority breakdown
-- [ ] **Dark/Light theme toggle** — User-selectable UI theme
-- [ ] **WebSocket live updates** — Real-time ticket and comment updates without page refresh
-- [ ] **Horizontal pod autoscaling** — Auto-scale services based on CPU/memory usage
-- [ ] **Prometheus + Grafana monitoring** — Metrics, dashboards, and alerting
-- [ ] **GitHub Actions CI/CD** — Alternative pipeline alongside Jenkins
-- [ ] **Helm charts** — Package all K8s manifests into a reusable Helm chart
-- [ ] **Unit and integration tests** — JUnit for backend, React Testing Library for frontend
-- [ ] **API rate limiting** — Protect endpoints from abuse
-- [ ] **Audit logging** — Track all ticket changes with timestamps and user info
 
 ---
 
@@ -711,4 +692,4 @@ cd infra/terraform && terraform plan
 
 ## License
 
-This project is for educational purposes.
+

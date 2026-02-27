@@ -1,10 +1,10 @@
-# 🎫 MiniTicket
+# MiniTicket
 
 ## Title
 
 **MiniTicket** — A full-stack, microservices-based ticket management system deployed on Azure Kubernetes Service with custom domain HTTPS.
 
-🌐 **Live**: [https://miniticket.online](https://miniticket.online)
+<!-- 🌐 **Live**: [https://miniticket.online](https://miniticket.online) -->
 
 ---
 
@@ -375,9 +375,7 @@ Open `https://miniticket.online` → Sign in → Create a ticket.
 
 ## Architecture Diagram
 
-```
 ![MiniTicket System Architecture](docs/architecture-diagram.png)
-```
 
 ### Request Flow
 

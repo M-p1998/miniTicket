@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiniTicket – System Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0e17;
+    color: #e0e4ed;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Subtle grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 30px 60px;
+  }
+
+  /* ─── Header ─── */
+  .header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+
+  .header h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.4rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #818cf8, #6ee7b7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+
+  .header .subtitle {
+    font-size: 0.95rem;
+    color: #64748b;
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .header .url {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 6px 16px;
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: #818cf8;
+  }
+
+  /* ─── SVG Diagram ─── */
+  .diagram-wrapper {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* ─── Legend ─── */
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    padding: 20px;
+    background: rgba(15,20,35,0.6);
+    border: 1px solid rgba(99,102,241,0.1);
+    border-radius: 12px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: #94a3b8;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  /* ─── Tech Stack ─── */
+  .tech-section {
+    margin-top: 50px;
+  }
+
+  .tech-section h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    color: #6ee7b7;
+    margin-bottom: 20px;
+    text-align: center;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .tech-card {
+    background: rgba(15,20,35,0.7);
+    border: 1px solid rgba(99,102,241,0.1);
+    border-radius: 8px;
+    padding: 14px 16px;
+    transition: border-color 0.3s;
+  }
+
+  .tech-card:hover {
+    border-color: rgba(99,102,241,0.3);
+  }
+
+  .tech-card .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .tech-card .value {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #e0e4ed;
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .header { animation: fadeInUp 0.6s ease-out; }
+  .diagram-wrapper { animation: fadeInUp 0.6s ease-out 0.1s both; }
+  .legend { animation: fadeInUp 0.6s ease-out 0.2s both; }
+  .tech-section { animation: fadeInUp 0.6s ease-out 0.3s both; }
+
+  @keyframes dash {
+    to { stroke-dashoffset: -20; }
+  }
+
+  .flow-line {
+    animation: dash 1.5s linear infinite;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>MiniTicket</h1>
+    <div class="subtitle">System Architecture Diagram</div>
+    <div class="url">https://miniticket.online</div>
+  </div>
+
+  <div class="diagram-wrapper">
+    <svg viewBox="0 0 1200 880" width="1200" height="880" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Glow filter -->
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        </filter>
+        <!-- Arrow marker -->
+        <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+        </marker>
+        <marker id="arrowGreen" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#6ee7b7"/>
+        </marker>
+      </defs>
+
+      <!-- ═══════════ BACKGROUND ZONES ═══════════ -->
+
+      <!-- Internet zone -->
+      <rect x="30" y="20" width="1140" height="100" rx="12" fill="rgba(99,102,241,0.04)" stroke="rgba(99,102,241,0.12)" stroke-dasharray="6 4"/>
+      <text x="60" y="48" font-family="JetBrains Mono" font-size="11" fill="#64748b" letter-spacing="2">INTERNET</text>
+
+      <!-- Azure AKS zone -->
+      <rect x="30" y="150" width="1140" height="700" rx="12" fill="rgba(59,130,246,0.03)" stroke="rgba(59,130,246,0.12)" stroke-dasharray="6 4"/>
+      <text x="60" y="178" font-family="JetBrains Mono" font-size="11" fill="#3b82f6" letter-spacing="2">AZURE KUBERNETES SERVICE (AKS) — miniticket namespace</text>
+
+      <!-- Ingress zone -->
+      <rect x="60" y="195" width="1080" height="95" rx="8" fill="rgba(129,140,248,0.04)" stroke="rgba(129,140,248,0.08)"/>
+      <text x="85" y="218" font-family="JetBrains Mono" font-size="10" fill="#818cf8" letter-spacing="1.5">NGINX INGRESS CONTROLLER + CERT-MANAGER (HTTPS)</text>
+
+      <!-- Services zone -->
+      <rect x="60" y="415" width="1080" height="120" rx="8" fill="rgba(110,231,183,0.03)" stroke="rgba(110,231,183,0.08)"/>
+      <text x="85" y="438" font-family="JetBrains Mono" font-size="10" fill="#6ee7b7" letter-spacing="1.5">MICROSERVICES</text>
+
+      <!-- Data zone -->
+      <rect x="60" y="580" width="1080" height="120" rx="8" fill="rgba(251,191,36,0.03)" stroke="rgba(251,191,36,0.08)"/>
+      <text x="85" y="603" font-family="JetBrains Mono" font-size="10" fill="#fbbf24" letter-spacing="1.5">DATA LAYER</text>
+
+      <!-- Messaging zone -->
+      <rect x="60" y="730" width="1080" height="100" rx="8" fill="rgba(244,114,182,0.03)" stroke="rgba(244,114,182,0.08)"/>
+      <text x="85" y="753" font-family="JetBrains Mono" font-size="10" fill="#f472b6" letter-spacing="1.5">EVENT BUS</text>
+
+      <!-- ═══════════ USER ═══════════ -->
+      <g transform="translate(540,55)">
+        <circle cx="60" cy="20" r="16" fill="none" stroke="#818cf8" stroke-width="2"/>
+        <text x="60" y="25" text-anchor="middle" font-family="JetBrains Mono" font-size="14" fill="#818cf8">👤</text>
+        <text x="60" y="50" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#94a3b8" font-weight="600">User / Browser</text>
+      </g>
+
+      <!-- ═══════════ DOMAINS ═══════════ -->
+
+      <!-- miniticket.online -->
+      <g transform="translate(115,230)">
+        <rect width="210" height="46" rx="8" fill="#1a1f35" stroke="#818cf8" stroke-width="1.5"/>
+        <text x="105" y="20" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#64748b">miniticket.online</text>
+        <text x="105" y="36" text-anchor="middle" font-family="DM Sans" font-size="12" fill="#e0e4ed" font-weight="600">Frontend</text>
+      </g>
+
+      <!-- auth.miniticket.online -->
+      <g transform="translate(440,230)">
+        <rect width="210" height="46" rx="8" fill="#1a1f35" stroke="#818cf8" stroke-width="1.5"/>
+        <text x="105" y="20" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#64748b">auth.miniticket.online</text>
+        <text x="105" y="36" text-anchor="middle" font-family="DM Sans" font-size="12" fill="#e0e4ed" font-weight="600">Keycloak</text>
+      </g>
+
+      <!-- api.miniticket.online -->
+      <g transform="translate(770,230)">
+        <rect width="210" height="46" rx="8" fill="#1a1f35" stroke="#818cf8" stroke-width="1.5"/>
+        <text x="105" y="20" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#64748b">api.miniticket.online</text>
+        <text x="105" y="36" text-anchor="middle" font-family="DM Sans" font-size="12" fill="#e0e4ed" font-weight="600">API Gateway</text>
+      </g>
+
+      <!-- ═══════════ APPLICATION SERVICES ═══════════ -->
+
+      <!-- Frontend -->
+      <g transform="translate(115,320)">
+        <rect width="210" height="60" rx="8" fill="#1a1f35" stroke="#6ee7b7" stroke-width="1.5"/>
+        <text x="105" y="25" text-anchor="middle" font-family="JetBrains Mono" font-size="12" fill="#6ee7b7" font-weight="700">React Frontend</text>
+        <text x="105" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#64748b">nginx :80</text>
+      </g>
+
+      <!-- Keycloak -->
+      <g transform="translate(440,320)">
+        <rect width="210" height="60" rx="8" fill="#1a1f35" stroke="#f472b6" stroke-width="1.5"/>
+        <text x="105" y="25" text-anchor="middle" font-family="JetBrains Mono" font-size="12" fill="#f472b6" font-weight="700">Keycloak</text>
+        <text x="105" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#64748b">OpenID Connect :8080</text>
+      </g>
+
+      <!-- API Gateway -->
+      <g transform="translate(770,320)">
+        <rect width="210" height="60" rx="8" fill="#1a1f35" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="105" y="25" text-anchor="middle" font-family="JetBrains Mono" font-size="12" fill="#fbbf24" font-weight="700">API Gateway</text>
+        <text x="105" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#64748b">Spring Cloud :9001</text>
+      </g>
+
+      <!-- ═══════════ MICROSERVICES ═══════════ -->
+
+      <!-- Ticket Service -->
+      <g transform="translate(115,450)">
+        <rect width="210" height="60" rx="8" fill="#1a1f35" stroke="#6ee7b7" stroke-width="1"/>
+        <text x="105" y="25" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#6ee7b7" font-weight="600">Ticket Service</text>
+        <text x="105" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#64748b">Spring Boot :8080</text>
+      </g>
+
+      <!-- Comment Service -->
+      <g transform="translate(440,450)">
+        <rect width="210" height="60" rx="8" fill="#1a1f35" stroke="#6ee7b7" stroke-width="1"/>
+        <text x="105" y="25" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#6ee7b7" font-weight="600">Comment Service</text>
+        <text x="105" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#64748b">Spring Boot :8081</text>
+      </g>
+
+      <!-- User Service -->
+      <g transform="translate(770,450)">
+        <rect width="210" height="60" rx="8" fill="#1a1f35" stroke="#6ee7b7" stroke-width="1"/>
+        <text x="105" y="25" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#6ee7b7" font-weight="600">User Service</text>
+        <text x="105" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#64748b">Spring Boot :8083</text>
+      </g>
+
+      <!-- ═══════════ DATA LAYER ═══════════ -->
+
+      <!-- PostgreSQL Tickets -->
+      <g transform="translate(100,615)">
+        <rect width="155" height="56" rx="8" fill="#1a1f35" stroke="#fbbf24" stroke-width="1"/>
+        <text x="78" y="24" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#fbbf24" font-weight="600">PostgreSQL</text>
+        <text x="78" y="42" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#64748b">tickets :5432</text>
+      </g>
+
+      <!-- PostgreSQL Comments -->
+      <g transform="translate(415,615)">
+        <rect width="155" height="56" rx="8" fill="#1a1f35" stroke="#fbbf24" stroke-width="1"/>
+        <text x="78" y="24" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#fbbf24" font-weight="600">PostgreSQL</text>
+        <text x="78" y="42" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#64748b">comments :5432</text>
+      </g>
+
+      <!-- PostgreSQL Users -->
+      <g transform="translate(735,615)">
+        <rect width="155" height="56" rx="8" fill="#1a1f35" stroke="#fbbf24" stroke-width="1"/>
+        <text x="78" y="24" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#fbbf24" font-weight="600">PostgreSQL</text>
+        <text x="78" y="42" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#64748b">users :5432</text>
+      </g>
+
+      <!-- Redis -->
+      <g transform="translate(960,615)">
+        <rect width="145" height="56" rx="8" fill="#1a1f35" stroke="#ef4444" stroke-width="1"/>
+        <text x="73" y="24" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#ef4444" font-weight="600">Redis</text>
+        <text x="73" y="42" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#64748b">cache :6379</text>
+      </g>
+
+      <!-- ═══════════ EVENT BUS ═══════════ -->
+
+      <!-- Kafka -->
+      <g transform="translate(310,765)">
+        <rect width="280" height="50" rx="8" fill="#1a1f35" stroke="#f472b6" stroke-width="1"/>
+        <text x="140" y="22" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#f472b6" font-weight="600">Apache Kafka</text>
+        <text x="140" y="40" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#64748b">async event messaging :9092</text>
+      </g>
+
+      <!-- Zookeeper -->
+      <g transform="translate(680,765)">
+        <rect width="220" height="50" rx="8" fill="#1a1f35" stroke="#f472b6" stroke-width="1"/>
+        <text x="110" y="22" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#f472b6" font-weight="600">Zookeeper</text>
+        <text x="110" y="40" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#64748b">coordination :2181</text>
+      </g>
+
+      <!-- ═══════════ CONNECTION LINES ═══════════ -->
+
+      <!-- User to Ingress domains -->
+      <line x1="580" y1="88" x2="220" y2="230" stroke="#475569" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="600" y1="88" x2="545" y2="230" stroke="#475569" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="620" y1="88" x2="875" y2="230" stroke="#475569" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- HTTPS labels on lines -->
+      <text x="370" y="155" font-family="JetBrains Mono" font-size="9" fill="#818cf8" transform="rotate(-25 370 155)">HTTPS</text>
+      <text x="560" y="148" font-family="JetBrains Mono" font-size="9" fill="#818cf8" transform="rotate(-5 560 148)">HTTPS</text>
+      <text x="770" y="155" font-family="JetBrains Mono" font-size="9" fill="#818cf8" transform="rotate(25 770 155)">HTTPS</text>
+
+      <!-- Ingress to Services -->
+      <line x1="220" y1="276" x2="220" y2="320" stroke="#6ee7b7" stroke-width="1.2" marker-end="url(#arrowGreen)"/>
+      <line x1="545" y1="276" x2="545" y2="320" stroke="#f472b6" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="875" y1="276" x2="875" y2="320" stroke="#fbbf24" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- Frontend → Keycloak (auth) -->
+      <line x1="325" y1="350" x2="440" y2="350" stroke="#f472b6" stroke-width="1" stroke-dasharray="5 3" marker-end="url(#arrow)" class="flow-line"/>
+      <text x="367" y="342" font-family="JetBrains Mono" font-size="8" fill="#f472b6">OIDC</text>
+
+      <!-- Frontend → API Gateway -->
+      <path d="M 325 360 Q 550 395 770 360" stroke="#fbbf24" stroke-width="1" stroke-dasharray="5 3" fill="none" marker-end="url(#arrow)" class="flow-line"/>
+      <text x="530" y="393" font-family="JetBrains Mono" font-size="8" fill="#fbbf24">API calls</text>
+
+      <!-- API Gateway → Keycloak (JWT validation) -->
+      <line x1="770" y1="340" x2="650" y2="340" stroke="#f472b6" stroke-width="1" stroke-dasharray="5 3" marker-end="url(#arrow)" class="flow-line"/>
+      <text x="685" y="332" font-family="JetBrains Mono" font-size="8" fill="#f472b6">JWT</text>
+
+      <!-- API Gateway → Microservices -->
+      <line x1="820" y1="380" x2="280" y2="450" stroke="#475569" stroke-width="1" marker-end="url(#arrow)"/>
+      <line x1="875" y1="380" x2="545" y2="450" stroke="#475569" stroke-width="1" marker-end="url(#arrow)"/>
+      <line x1="910" y1="380" x2="875" y2="450" stroke="#475569" stroke-width="1" marker-end="url(#arrow)"/>
+
+      <!-- Route labels -->
+      <text x="480" y="410" font-family="JetBrains Mono" font-size="8" fill="#475569">/api/tickets</text>
+      <text x="660" y="410" font-family="JetBrains Mono" font-size="8" fill="#475569">/api/comments</text>
+      <text x="900" y="410" font-family="JetBrains Mono" font-size="8" fill="#475569">/api/users</text>
+
+      <!-- Services → Databases -->
+      <line x1="178" y1="510" x2="178" y2="615" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4 3"/>
+      <line x1="493" y1="510" x2="493" y2="615" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4 3"/>
+      <line x1="813" y1="510" x2="813" y2="615" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4 3"/>
+
+      <!-- Services → Redis -->
+      <line x1="270" y1="510" x2="1033" y2="615" stroke="#ef4444" stroke-width="0.8" stroke-dasharray="4 3"/>
+      <line x1="580" y1="510" x2="1033" y2="615" stroke="#ef4444" stroke-width="0.8" stroke-dasharray="4 3"/>
+      <line x1="875" y1="510" x2="1033" y2="615" stroke="#ef4444" stroke-width="0.8" stroke-dasharray="4 3"/>
+      <text x="950" y="560" font-family="JetBrains Mono" font-size="8" fill="#ef4444">cache</text>
+
+      <!-- Services → Kafka -->
+      <line x1="220" y1="510" x2="400" y2="765" stroke="#f472b6" stroke-width="0.8" stroke-dasharray="4 3"/>
+      <line x1="545" y1="510" x2="480" y2="765" stroke="#f472b6" stroke-width="0.8" stroke-dasharray="4 3"/>
+
+      <!-- Kafka → Zookeeper -->
+      <line x1="590" y1="790" x2="680" y2="790" stroke="#f472b6" stroke-width="1" stroke-dasharray="4 3"/>
+
+      <!-- ═══════════ AZURE SIDE PANEL ═══════════ -->
+      <g transform="translate(1020,300)">
+        <rect width="130" height="170" rx="8" fill="rgba(59,130,246,0.06)" stroke="rgba(59,130,246,0.15)"/>
+        <text x="65" y="22" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#3b82f6" letter-spacing="1">AZURE</text>
+        <line x1="15" y1="32" x2="115" y2="32" stroke="rgba(59,130,246,0.15)"/>
+        <text x="65" y="55" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#94a3b8">AKS Cluster</text>
+        <text x="65" y="72" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#64748b">2 nodes</text>
+        <text x="65" y="72" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#64748b">2× Standard_D2s_v3</text>
+        <line x1="15" y1="85" x2="115" y2="85" stroke="rgba(59,130,246,0.1)"/>
+        <text x="65" y="105" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#94a3b8">ACR</text>
+        <text x="65" y="120" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#64748b">Docker Registry</text>
+        <line x1="15" y1="133" x2="115" y2="133" stroke="rgba(59,130,246,0.1)"/>
+        <text x="65" y="153" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#94a3b8">Terraform</text>
+        <text x="65" y="165" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#64748b">IaC</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#818cf8"></div>Ingress / HTTPS</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#6ee7b7"></div>Application Services</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div>Data Layer</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f472b6"></div>Auth / Events</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>Cache</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>Azure Infrastructure</div>
+    <div class="legend-item" style="color:#64748b">╌╌╌ Async / Internal</div>
+    <div class="legend-item" style="color:#64748b">─── Direct</div>
+  </div>
+
+  <!-- Tech Stack -->
+  <div class="tech-section">
+    <h2>Technology Stack</h2>
+    <div class="tech-grid">
+      <div class="tech-card"><div class="label">Frontend</div><div class="value">React 18 + TypeScript + Vite</div></div>
+      <div class="tech-card"><div class="label">Backend</div><div class="value">Spring Boot 3 + Java 17</div></div>
+      <div class="tech-card"><div class="label">API Gateway</div><div class="value">Spring Cloud Gateway</div></div>
+      <div class="tech-card"><div class="label">Auth</div><div class="value">Keycloak 26 (OIDC / OAuth2)</div></div>
+      <div class="tech-card"><div class="label">Database</div><div class="value">PostgreSQL (per service)</div></div>
+      <div class="tech-card"><div class="label">Cache</div><div class="value">Redis</div></div>
+      <div class="tech-card"><div class="label">Messaging</div><div class="value">Apache Kafka + Zookeeper</div></div>
+      <div class="tech-card"><div class="label">Orchestration</div><div class="value">Azure Kubernetes Service</div></div>
+      <div class="tech-card"><div class="label">Registry</div><div class="value">Azure Container Registry</div></div>
+      <div class="tech-card"><div class="label">IaC</div><div class="value">Terraform + Ansible</div></div>
+      <div class="tech-card"><div class="label">CI/CD</div><div class="value">Jenkins Pipeline</div></div>
+      <div class="tech-card"><div class="label">TLS / Ingress</div><div class="value">NGINX + cert-manager</div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

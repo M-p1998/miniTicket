@@ -62,7 +62,6 @@ MiniTicket is a production-ready support ticket management platform where users 
 
 ### API Endpoints
 
-All requests go through `https://api.miniticket.online` and require a valid JWT Bearer token.
 
 **Tickets**
 
@@ -90,93 +89,7 @@ All requests go through `https://api.miniticket.online` and require a valid JWT 
 | `GET` | `/api/users/me` | Get current user profile |
 | `GET` | `/api/users/{username}` | Get user by username |
 
-### Project Structure
 
-```
-miniTicket/
-├── api-gateway/                       # Spring Cloud Gateway
-│   ├── src/main/java/.../config/
-│   │   ├── CorsConfig.java            # CORS allowed origins
-│   │   └── SecurityConfig.java        # OAuth2 JWT validation
-│   ├── src/main/resources/
-│   │   └── application.yml            # Routes, JWT issuer config
-│   ├── Dockerfile
-│   └── pom.xml
-│
-├── ticket-service/                    # Ticket CRUD microservice
-│   ├── src/main/java/.../
-│   │   ├── controller/
-│   │   ├── service/
-│   │   ├── model/
-│   │   └── repository/
-│   ├── Dockerfile
-│   └── pom.xml
-│
-├── comment-service/                   # Comment microservice
-│   ├── src/main/java/.../
-│   ├── Dockerfile
-│   └── pom.xml
-│
-├── user-service/                      # User profile microservice
-│   ├── src/main/java/.../
-│   ├── Dockerfile
-│   └── pom.xml
-│
-├── miniTicket-ui/                     # React frontend
-│   ├── src/
-│   │   ├── api/http.ts                # API client + Gateway URL
-│   │   ├── auth/
-│   │   │   ├── keycloak.ts            # Keycloak connection config
-│   │   │   ├── AuthProvider.tsx        # Auth context + login/logout
-│   │   │   └── IdleLogout.tsx          # 10-min inactivity auto-logout
-│   │   ├── components/Navbar.tsx
-│   │   ├── pages/
-│   │   │   ├── TicketsDashboardPage.tsx
-│   │   │   ├── TicketDetailPage.tsx
-│   │   │   ├── CreateTicketPage.tsx
-│   │   │   └── ProfilePage.tsx
-│   │   └── store/                     # Redux state management
-│   ├── nginx.conf                     # Production SPA routing
-│   ├── Dockerfile                     # Multi-stage: node → nginx
-│   ├── tsconfig.json
-│   └── vite.config.ts
-│
-├── keycloak/                          # Keycloak configuration
-│
-├── infra/
-│   ├── k8s/                           # Kubernetes manifests
-│   │   ├── 00-namespace.yaml
-│   │   ├── 01-secrets.yaml
-│   │   ├── 10-postgres-ticket.yaml
-│   │   ├── 11-postgres-comment.yaml
-│   │   ├── 12-postgres-user.yaml
-│   │   ├── 20-redis.yaml
-│   │   ├── 30-zookeeper.yaml
-│   │   ├── 31-kafka.yaml
-│   │   ├── 40-keycloak.yaml
-│   │   ├── 50-ticket-service.yaml
-│   │   ├── 51-comment-service.yaml
-│   │   ├── 52-user-service.yaml
-│   │   ├── 53-api-gateway.yaml
-│   │   ├── 60-frontend.yaml
-│   │   ├── 95-cluster-issuer.yaml     # Let's Encrypt issuer
-│   │   └── 96-ingress.yaml            # Ingress rules (3 domains)
-│   │
-│   ├── terraform/                     # Infrastructure as Code
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   ├── terraform.tfvars
-│   │   └── outputs.tf
-│   │
-│   └── ansible/
-│       └── deploy.yaml                # Deployment automation
-│
-├── Jenkinsfile                        # CI/CD pipeline
-├── docker-compose.yml                 # Local development
-└── README.md
-```
-
----
 
 ## Requirements
 
@@ -350,7 +263,7 @@ Point your domain to the ingress external IP with A records:
 ```bash
 kubectl apply -f infra/k8s/95-cluster-issuer.yaml
 kubectl apply -f infra/k8s/96-ingress.yaml
-kubectl get certificate -n miniticket    # All should show READY = True
+kubectl get certificate -n miniticket    
 ```
 
 **Step 9: Configure Keycloak**
@@ -443,8 +356,6 @@ curl -s -o /dev/null -w "%{http_code}" https://miniticket.online
 kubectl exec -n miniticket deployment/api-gateway -- \
   curl -s http://keycloak:8080/realms/miniTicket/.well-known/openid-configuration \
   | grep -o '"issuer":"[^"]*"'
-
-# Expected: "issuer":"https://auth.miniticket.online/realms/miniTicket"
 
 # Check API Gateway environment
 kubectl exec -n miniticket deployment/api-gateway -- env | grep KC
@@ -631,6 +542,5 @@ cd infra/terraform && terraform plan
 
 ---
 
-## License
 
 

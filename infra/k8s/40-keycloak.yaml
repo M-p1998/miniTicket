@@ -31,6 +31,20 @@ spec:
               value: "xforwarded"
             - name: JAVA_OPTS_APPEND
               value: "-Xms256m -Xmx512m"
+            - name: KC_DB
+              value: "postgres"
+            - name: KC_DB_URL
+              value: "jdbc:postgresql://postgres-keycloak:5432/keycloak"
+            - name: KC_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: miniticket-secrets
+                  key: POSTGRES_USER
+            - name: KC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: miniticket-secrets
+                  key: POSTGRES_PASSWORD
             - name: KEYCLOAK_ADMIN
               valueFrom:
                 secretKeyRef:
